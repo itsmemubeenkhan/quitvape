@@ -61,9 +61,9 @@ class AppStyle {
   static const textDim = Color(0xFF8A9A94);
   static const textFaint = Color(0xFF5A6A64);
 
-  // Gradients - logo inspired
+  // Gradients - logo inspired (green to blue like the logo)
   static const gradientEmerald = LinearGradient(
-    colors: [Color(0xFF00E5A0), Color(0xFF00B87D)],
+    colors: [Color(0xFF00E5A0), Color(0xFF4FC3F7)],
     begin: Alignment.topLeft,
     end: Alignment.bottomRight,
   );

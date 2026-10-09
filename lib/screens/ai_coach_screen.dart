@@ -16,7 +16,7 @@ class AICoachScreen extends StatefulWidget {
 class _AICoachScreenState extends State<AICoachScreen> {
   final _messageController = TextEditingController();
   final _scrollController = ScrollController();
-  final List<Map<String, String>> _messages = [];
+  static final List<Map<String, String>> _messages = [];
   bool _isTyping = false;
 
   // Voice
@@ -282,7 +282,7 @@ Use their name occasionally. If weight/height is known, you can give personalize
           title: Row(
             mainAxisSize: MainAxisSize.min,
             children: [
-              const Text('🤖 AI Quit Coach', style: TextStyle(fontWeight: FontWeight.bold, color: Colors.white)),
+              const Text('👨‍⚕️ AI Quit Coach', style: TextStyle(fontWeight: FontWeight.bold, color: Colors.white)),
               const SizedBox(width: 8),
               Container(
                 padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
@@ -316,7 +316,7 @@ Use their name occasionally. If weight/height is known, you can give personalize
                     gradient: LinearGradient(colors: [Colors.purple.withOpacity(0.3), Colors.purple.withOpacity(0.1)]),
                     shape: BoxShape.circle,
                   ),
-                  child: const Center(child: Text('🤖', style: TextStyle(fontSize: 60))),
+                  child: const Center(child: Text('👨‍⚕️', style: TextStyle(fontSize: 60))),
                 ),
                 const SizedBox(height: 24),
                 const Text('Meet Your AI Quit Coach',
@@ -376,7 +376,7 @@ Use their name occasionally. If weight/height is known, you can give personalize
                 gradient: LinearGradient(colors: [Colors.purple.withOpacity(0.4), Colors.purple.withOpacity(0.2)]),
                 shape: BoxShape.circle,
               ),
-              child: const Center(child: Text('🤖', style: TextStyle(fontSize: 22))),
+              child: const Center(child: Text('👨‍⚕️', style: TextStyle(fontSize: 22))),
             ),
             const SizedBox(width: 10),
             Column(
@@ -462,7 +462,7 @@ Use their name occasionally. If weight/height is known, you can give personalize
         child: const Row(
           mainAxisSize: MainAxisSize.min,
           children: [
-            Text('🤖 ', style: TextStyle(fontSize: 16)),
+            Text('👨‍⚕️ ', style: TextStyle(fontSize: 16)),
             SizedBox(width: 8),
             SizedBox(
               width: 40,
