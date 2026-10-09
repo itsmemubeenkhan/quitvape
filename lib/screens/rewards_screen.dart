@@ -27,6 +27,9 @@ class RewardsScreen extends StatelessWidget {
     ];
 
     final earnedCount = rewards.where((r) => r['earned'] as bool).length;
+    final coins = QuitService.getCoins();
+    final canClaim = QuitService.canClaimDailyCoins();
+    final isPremium = QuitService.isPremium();
 
     return SingleChildScrollView(
       padding: const EdgeInsets.all(20),
@@ -37,6 +40,111 @@ class RewardsScreen extends StatelessWidget {
           const SizedBox(height: 4),
           Text('$earnedCount of ${rewards.length} unlocked', style: AppStyle.subtext()),
           const SizedBox(height: 16),
+
+          // Quit & Earn coins card
+          Container(
+            width: double.infinity,
+            padding: const EdgeInsets.all(22),
+            decoration: BoxDecoration(
+              gradient: LinearGradient(
+                colors: [const Color(0xFFFFB800).withOpacity(0.2), const Color(0xFFFF8A00).withOpacity(0.08)],
+              ),
+              borderRadius: BorderRadius.circular(22),
+              border: Border.all(color: AppStyle.gold.withOpacity(0.35), width: 1.5),
+            ),
+            child: Column(
+              children: [
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    const Text('🪙', style: TextStyle(fontSize: 36)),
+                    const SizedBox(width: 12),
+                    Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text('$coins',
+                            style: const TextStyle(fontSize: 32, fontWeight: FontWeight.w800, color: Colors.white)),
+                        const Text('QuitCoins earned', style: TextStyle(color: AppStyle.textDim, fontSize: 13)),
+                      ],
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 8),
+                Text('≈ \$${QuitService.getCoinsValue().toStringAsFixed(2)} in rewards value',
+                    style: const TextStyle(color: AppStyle.gold, fontSize: 14, fontWeight: FontWeight.w600)),
+                const SizedBox(height: 16),
+                if (canClaim)
+                  SizedBox(
+                    width: double.infinity,
+                    height: 54,
+                    child: Container(
+                      decoration: BoxDecoration(
+                        gradient: AppStyle.gradientGold,
+                        borderRadius: BorderRadius.circular(16),
+                        boxShadow: [
+                          BoxShadow(color: AppStyle.gold.withOpacity(0.35), blurRadius: 16, offset: const Offset(0, 8)),
+                        ],
+                      ),
+                      child: ElevatedButton(
+                        onPressed: () async {
+                          final earned = await QuitService.claimDailyCoins();
+                          if (context.mounted) {
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              SnackBar(
+                                content: Text('🎉 +$earned QuitCoins claimed! Keep going!'),
+                                backgroundColor: const Color(0xFFB87D00),
+                              ),
+                            );
+                            (context as Element).markNeedsBuild();
+                          }
+                        },
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: Colors.transparent,
+                          shadowColor: Colors.transparent,
+                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+                        ),
+                        child: Text('Claim Daily Reward: +${QuitService.getDailyCoinReward()} 🪙',
+                            style: const TextStyle(fontWeight: FontWeight.w800, fontSize: 16, color: Colors.black)),
+                      ),
+                    ),
+                  )
+                else
+                  Container(
+                    padding: const EdgeInsets.symmetric(vertical: 14),
+                    decoration: BoxDecoration(
+                      color: const Color(0xFF1E2A24),
+                      borderRadius: BorderRadius.circular(16),
+                    ),
+                    child: const Center(
+                      child: Text('✅ Claimed today! Come back tomorrow 🌅',
+                          style: TextStyle(color: AppStyle.textDim, fontSize: 14)),
+                    ),
+                  ),
+                if (!isPremium) ...[
+                  const SizedBox(height: 12),
+                  Container(
+                    padding: const EdgeInsets.all(12),
+                    decoration: BoxDecoration(
+                      color: AppStyle.emerald.withOpacity(0.08),
+                      borderRadius: BorderRadius.circular(12),
+                      border: Border.all(color: AppStyle.emerald.withOpacity(0.2)),
+                    ),
+                    child: const Row(
+                      children: [
+                        Text('👑', style: TextStyle(fontSize: 20)),
+                        SizedBox(width: 10),
+                        Expanded(
+                          child: Text('Premium members earn 2.5x coins (25/day)!',
+                              style: TextStyle(color: AppStyle.emerald, fontSize: 13, fontWeight: FontWeight.w600)),
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
+              ],
+            ),
+          ),
+          const SizedBox(height: 20),
           // Progress
           Container(
             padding: const EdgeInsets.all(20),

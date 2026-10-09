@@ -15,6 +15,8 @@ class QuitService {
   static const String _keyLastPledge = 'last_pledge_date';
   static const String _keyUserName = 'user_name';
   static const String _keyNotifications = 'notifications_enabled';
+  static const String _keyCoins = 'quit_coins';
+  static const String _keyLastCoinClaim = 'last_coin_claim';
 
   static bool hasSeenPostCravingPaywall() {
     return _prefs.getBool(_keyPostCravingPaywall) ?? false;
@@ -104,6 +106,45 @@ class QuitService {
 
   static Future<void> cancelNotifications() async {
     // Will be implemented with flutter_local_notifications
+  }
+
+  // Quit & Earn rewards system
+  static int getCoins() {
+    return _prefs.getInt(_keyCoins) ?? 0;
+  }
+
+  static bool canClaimDailyCoins() {
+    final last = _prefs.getString(_keyLastCoinClaim);
+    if (last == null) return true;
+    final lastDate = DateTime.parse(last);
+    final now = DateTime.now();
+    return !(lastDate.year == now.year && lastDate.month == now.month && lastDate.day == now.day);
+  }
+
+  static int getDailyCoinReward() {
+    // Premium users earn 2.5x more - strong incentive to subscribe!
+    return isPremium() ? 25 : 10;
+  }
+
+  static Future<int> claimDailyCoins() async {
+    if (!canClaimDailyCoins()) return 0;
+    final reward = getDailyCoinReward();
+    final current = getCoins();
+    await _prefs.setInt(_keyCoins, current + reward);
+    await _prefs.setString(_keyLastCoinClaim, DateTime.now().toIso8601String());
+    // Streak bonus: every 7 days = bonus 50 coins
+    final days = getQuitDuration().inDays;
+    if (days > 0 && days % 7 == 0) {
+      final bonus = isPremium() ? 100 : 50;
+      await _prefs.setInt(_keyCoins, current + reward + bonus);
+      return reward + bonus;
+    }
+    return reward;
+  }
+
+  static double getCoinsValue() {
+    // 100 coins = $1 value (virtual)
+    return getCoins() / 100.0;
   }
 
   static Future<void> init() async {
