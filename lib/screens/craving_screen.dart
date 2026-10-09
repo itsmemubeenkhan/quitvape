@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:quitvape/services/quit_service.dart';
+import 'package:quitvape/screens/paywall_screen.dart';
 
 class CravingScreen extends StatefulWidget {
   const CravingScreen({super.key});
