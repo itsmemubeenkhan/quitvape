@@ -120,7 +120,7 @@ class _HomeScreenState extends State<HomeScreen> {
           shape: BoxShape.circle,
           boxShadow: [BoxShadow(color: AppStyle.emerald.withOpacity(0.4), blurRadius: 20, offset: const Offset(0, 8))],
         ),
-        child: const Icon(Icons.lifebuoy_rounded, color: Colors.black, size: 28),
+        child: const Icon(Icons.support_rounded, color: Colors.black, size: 28),
       ),
     );
   }

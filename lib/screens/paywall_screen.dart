@@ -212,7 +212,7 @@ class _PaywallScreenState extends State<PaywallScreen> {
                       '"The SOS tools saved me at least 20 times. Worth every penny."',
                       '— James K. • 156 days free'),
                   _buildTestimonial('⭐⭐⭐⭐⭐',
-                      '"Paid for yearly in week 1. Saved $1,400 so far. Best money ever spent."',
+                      '"Paid for yearly in week 1. Saved \$1,400 so far. Best money ever spent."',
                       '— Ahmed R. • 189 days free'),
                   const SizedBox(height: 20),
 
