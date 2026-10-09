@@ -41,6 +41,11 @@ jobs:
         with:
           name: quitvape-apk
           path: build/app/outputs/flutter-apk/app-release.apk
+      - name: Upload keystore (for stable signing)
+        uses: actions/upload-artifact@v4
+        with:
+          name: quitvape-keystore
+          path: android/keystore/quitvape.jks
       - name: Upload AAB
         uses: actions/upload-artifact@v4
         with:
