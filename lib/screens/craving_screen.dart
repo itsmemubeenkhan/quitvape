@@ -166,6 +166,24 @@ class _CravingScreenState extends State<CravingScreen> with TickerProviderStateM
   }
 
   Widget _buildCompleted() {
+    // Show paywall after beating craving (emotional high = best conversion moment)
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (mounted && !QuitService.isPremium() && !QuitService.hasSeenPostCravingPaywall()) {
+        QuitService.markPostCravingPaywallSeen();
+        Future.delayed(const Duration(milliseconds: 1500), () {
+          if (mounted) {
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (_) => const PaywallScreen(showAtStart: false),
+                fullscreenDialog: true,
+              ),
+            );
+          }
+        });
+      }
+    });
+
     return Center(
       child: SingleChildScrollView(
         padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 24),

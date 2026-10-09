@@ -9,6 +9,15 @@ class QuitService {
   static const String _keyCigsPerPack = 'cigs_per_pack';
   static const String _keyIsPremium = 'is_premium';
   static const String _keyCravingsResisted = 'cravings_resisted';
+  static const String _keyPostCravingPaywall = 'post_craving_paywall_seen';
+
+  static bool hasSeenPostCravingPaywall() {
+    return _prefs.getBool(_keyPostCravingPaywall) ?? false;
+  }
+
+  static Future<void> markPostCravingPaywallSeen() async {
+    await _prefs.setBool(_keyPostCravingPaywall, true);
+  }
 
   static Future<void> init() async {
     _prefs = await SharedPreferences.getInstance();

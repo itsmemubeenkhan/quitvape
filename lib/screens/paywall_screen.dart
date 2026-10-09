@@ -124,6 +124,23 @@ class _PaywallScreenState extends State<PaywallScreen> {
                     textAlign: TextAlign.center,
                   ),
                   const SizedBox(height: 20),
+                  // Social proof - testimonials
+                  _buildTestimonial(
+                    '⭐⭐⭐⭐⭐',
+                    '"I tried everything for 5 years. QuitVape\'s craving tools finally worked. 6 months clean!"',
+                    '— Sarah M., quit 187 days ago',
+                  ),
+                  _buildTestimonial(
+                    '⭐⭐⭐⭐⭐',
+                    '"The health milestones kept me going. Seeing my lungs heal in real-time was incredible."',
+                    '— James K., quit 92 days ago',
+                  ),
+                  _buildTestimonial(
+                    '⭐⭐⭐⭐⭐',
+                    '"Saved $1,200 in 4 months. Best investment I ever made in myself."',
+                    '— Ahmed R., quit 121 days ago',
+                  ),
+                  const SizedBox(height: 20),
                   _buildBenefit('📊', 'Advanced Statistics', 'Detailed charts & health insights'),
                   _buildBenefit('🎯', 'Personal Goals', 'Set custom milestones & rewards'),
                   _buildBenefit('🔔', 'Smart Reminders', 'Motivational notifications that work'),
@@ -216,6 +233,29 @@ class _PaywallScreenState extends State<PaywallScreen> {
             ),
           ],
         ),
+      ),
+    );
+  }
+
+  Widget _buildTestimonial(String stars, String quote, String author) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    return Container(
+      margin: const EdgeInsets.only(bottom: 10),
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: isDark ? const Color(0xFF1E1A33) : Colors.white,
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: const Color(0xFFFFD93D).withOpacity(0.3)),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(stars, style: const TextStyle(fontSize: 14)),
+          const SizedBox(height: 6),
+          Text(quote, style: const TextStyle(fontSize: 14, fontStyle: FontStyle.italic, height: 1.4)),
+          const SizedBox(height: 6),
+          Text(author, style: TextStyle(fontSize: 12, color: Colors.grey.shade500, fontWeight: FontWeight.w600)),
+        ],
       ),
     );
   }
