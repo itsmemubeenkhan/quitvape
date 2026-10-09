@@ -98,6 +98,22 @@ class _PaywallScreenState extends State<PaywallScreen> {
     _iap.buyNonConsumable(purchaseParam: PurchaseParam(productDetails: product));
   }
 
+  void _onTrialPressed() {
+    if (_products.isNotEmpty) {
+      _buy(_products[_selectedIndex.clamp(0, _products.length - 1)]);
+    } else {
+      // Store not ready yet (subscriptions not configured in Play Console)
+      // Show friendly message - in production this won't happen
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('⏳ Subscriptions activating soon! Please check back in a moment.'),
+          backgroundColor: Color(0xFF1E2A24),
+          duration: Duration(seconds: 3),
+        ),
+      );
+    }
+  }
+
   String _formatCountdown() {
     final h = _timeLeft.inHours.toString().padLeft(2, '0');
     final m = (_timeLeft.inMinutes % 60).toString().padLeft(2, '0');
@@ -229,6 +245,7 @@ class _PaywallScreenState extends State<PaywallScreen> {
                         style: TextStyle(color: AppStyle.textDim, fontSize: 13)),
                   ),
                   const SizedBox(height: 12),
+                  // Always show plans (fallback if store not ready)
                   if (_loading)
                     const Padding(padding: EdgeInsets.all(24), child: CircularProgressIndicator(color: AppStyle.emerald))
                   else if (_products.isEmpty)
@@ -303,9 +320,7 @@ class _PaywallScreenState extends State<PaywallScreen> {
                           ],
                         ),
                         child: ElevatedButton(
-                          onPressed: _products.isEmpty
-                              ? null
-                              : () => _buy(_products[_selectedIndex.clamp(0, _products.length - 1)]),
+                          onPressed: () => _onTrialPressed(),
                           style: ElevatedButton.styleFrom(
                             backgroundColor: Colors.transparent,
                             shadowColor: Colors.transparent,

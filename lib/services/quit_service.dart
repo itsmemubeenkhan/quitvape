@@ -13,6 +13,8 @@ class QuitService {
   static const String _keyCheckInStreak = 'checkin_streak';
   static const String _keyLastCheckIn = 'last_checkin_date';
   static const String _keyLastPledge = 'last_pledge_date';
+  static const String _keyUserName = 'user_name';
+  static const String _keyNotifications = 'notifications_enabled';
 
   static bool hasSeenPostCravingPaywall() {
     return _prefs.getBool(_keyPostCravingPaywall) ?? false;
@@ -75,6 +77,33 @@ class QuitService {
     final costPerPack = _prefs.getDouble(_keyCostPerPack) ?? 8.0;
     final cigsPerPack = _prefs.getInt(_keyCigsPerPack) ?? 20;
     return cigsPerDay * (costPerPack / cigsPerPack);
+  }
+
+  // User profile
+  static String getUserName() {
+    return _prefs.getString(_keyUserName) ?? '';
+  }
+
+  static Future<void> setUserName(String name) async {
+    await _prefs.setString(_keyUserName, name);
+  }
+
+  // Notifications
+  static bool areNotificationsEnabled() {
+    return _prefs.getBool(_keyNotifications) ?? true;
+  }
+
+  static Future<void> setNotificationsEnabled(bool enabled) async {
+    await _prefs.setBool(_keyNotifications, enabled);
+  }
+
+  static Future<void> scheduleDailyMotivation() async {
+    // Will be implemented with flutter_local_notifications
+    // For now just save the preference
+  }
+
+  static Future<void> cancelNotifications() async {
+    // Will be implemented with flutter_local_notifications
   }
 
   static Future<void> init() async {
