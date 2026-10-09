@@ -6,7 +6,8 @@ import 'package:quitvape/screens/craving_screen.dart';
 import 'package:quitvape/screens/paywall_screen.dart';
 
 class HomeScreen extends StatefulWidget {
-  const HomeScreen({super.key});
+  final bool showPaywallOnStart;
+  const HomeScreen({super.key, this.showPaywallOnStart = false});
 
   @override
   State<HomeScreen> createState() => _HomeScreenState();
@@ -21,6 +22,20 @@ class _HomeScreenState extends State<HomeScreen> {
     super.initState();
     _updateDuration();
     _timer = Timer.periodic(const Duration(seconds: 1), (_) => _updateDuration());
+    // Show paywall right at app start (after onboarding)
+    if (widget.showPaywallOnStart && !QuitService.isPremium()) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (mounted) {
+          Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (_) => const PaywallScreen(showAtStart: true),
+              fullscreenDialog: true,
+            ),
+          );
+        }
+      });
+    }
   }
 
   void _updateDuration() {
