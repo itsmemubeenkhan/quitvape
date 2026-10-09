@@ -67,29 +67,51 @@ class _CravingGameScreenState extends State<CravingGameScreen> with TickerProvid
   void _startSpawning() {
     _spawnTimer?.cancel();
     // Faster spawn at higher levels
-    final spawnMs = max(1200 - (_level * 200), 500);
+    final spawnMs = max(1000 - (_level * 150), 400);
     _spawnTimer = Timer.periodic(Duration(milliseconds: spawnMs), (timer) {
       if (_targets.length < 3 + _level && _isPlaying) {
+        final rand = _random.nextDouble();
         setState(() {
-          _targets.add(_Target(
-            id: _targetId++,
-            gridIndex: _random.nextInt(12),
-            isGolden: _random.nextDouble() < 0.15, // 15% golden = bonus
-            life: 2000 - (_level * 200), // ms before disappearing
-          ));
+          if (rand < 0.20) {
+            // 20% - DECOY (healthy item, DON'T smash!)
+            _targets.add(_Target(
+              id: _targetId++,
+              gridIndex: _random.nextInt(12),
+              type: _TargetType.decoy,
+              life: 1800 - (_level * 150),
+            ));
+          } else if (rand < 0.32) {
+            // 12% - Golden (bonus)
+            _targets.add(_Target(
+              id: _targetId++,
+              gridIndex: _random.nextInt(12),
+              type: _TargetType.golden,
+              life: 1500 - (_level * 150),
+            ));
+          } else {
+            // Normal vape
+            _targets.add(_Target(
+              id: _targetId++,
+              gridIndex: _random.nextInt(12),
+              type: _TargetType.vape,
+              life: 1800 - (_level * 200),
+            ));
+          }
         });
-        // Remove after life expires (missed!)
-        Future.delayed(Duration(milliseconds: 2000 - (_level * 200)), () {
+        final targetId = _targetId - 1;
+        // Remove after life expires
+        Future.delayed(Duration(milliseconds: 1800 - (_level * 150)), () {
           if (mounted && _isPlaying) {
             setState(() {
-              final target = _targets.where((t) => t.id == _targetId - 1).firstOrNull;
-              if (target != null && !target.isGolden) {
+              final target = _targets.where((t) => t.id == targetId).firstOrNull;
+              if (target != null) {
                 _targets.remove(target);
-                _lives--;
-                _combo = 0;
-                if (_lives <= 0) _endGame(false);
-              } else if (target != null) {
-                _targets.remove(target);
+                // Only lose life for missed VAPES, not decoys
+                if (target.type == _TargetType.vape) {
+                  _lives--;
+                  _combo = 0;
+                  if (_lives <= 0) _endGame(false);
+                }
               }
             });
           }
@@ -101,13 +123,21 @@ class _CravingGameScreenState extends State<CravingGameScreen> with TickerProvid
   void _smashTarget(_Target target) {
     setState(() {
       _targets.remove(target);
+
+      if (target.type == _TargetType.decoy) {
+        // SMASHED A HEALTHY ITEM! Penalty!
+        _combo = 0;
+        _score = max(0, _score - 30);
+        _lives--;
+        if (_lives <= 0) _endGame(false);
+        return;
+      }
+
       _combo++;
       _bestCombo = max(_bestCombo, _combo);
 
-      int points = target.isGolden ? 50 : 10;
-      // Combo multiplier
+      int points = target.type == _TargetType.golden ? 50 : 10;
       points += (_combo ~/ 5) * 10;
-      // Level multiplier
       points *= _level;
 
       _score += points;
@@ -273,29 +303,39 @@ class _CravingGameScreenState extends State<CravingGameScreen> with TickerProvid
   }
 
   Widget _buildCell(_Target? target) {
+    String emoji = '';
+    Color bgColor = AppStyle.cardBg.withOpacity(0.5);
+    Color borderColor = const Color(0xFF1E2A24).withOpacity(0.5);
+
+    if (target != null) {
+      if (target.type == _TargetType.golden) {
+        emoji = '✨';
+        bgColor = AppStyle.gold.withOpacity(0.15);
+        borderColor = AppStyle.gold;
+      } else if (target.type == _TargetType.decoy) {
+        // Healthy decoys - DON'T smash!
+        final decoys = ['🍎', '💧', '🏃', '🥗', '😴'];
+        emoji = decoys[target.id % decoys.length];
+        bgColor = AppStyle.emerald.withOpacity(0.1);
+        borderColor = AppStyle.emerald.withOpacity(0.4);
+      } else {
+        emoji = '🚬';
+        bgColor = AppStyle.red.withOpacity(0.1);
+        borderColor = AppStyle.red.withOpacity(0.5);
+      }
+    }
+
     return GestureDetector(
       onTap: target != null ? () => _smashTarget(target) : null,
       child: AnimatedContainer(
         duration: const Duration(milliseconds: 150),
         decoration: BoxDecoration(
-          color: target != null
-              ? (target.isGolden ? AppStyle.gold.withOpacity(0.15) : AppStyle.red.withOpacity(0.1))
-              : AppStyle.cardBg.withOpacity(0.5),
+          color: bgColor,
           borderRadius: BorderRadius.circular(16),
-          border: Border.all(
-            color: target != null
-                ? (target.isGolden ? AppStyle.gold : AppStyle.red.withOpacity(0.5))
-                : const Color(0xFF1E2A24).withOpacity(0.5),
-            width: target != null ? 2 : 1,
-          ),
+          border: Border.all(color: borderColor, width: target != null ? 2 : 1),
         ),
         child: Center(
-          child: target != null
-              ? Text(
-                  target.isGolden ? '✨' : '🚬',
-                  style: TextStyle(fontSize: target.isGolden ? 44 : 40),
-                )
-              : const Text('', style: TextStyle(fontSize: 20)),
+          child: Text(emoji, style: const TextStyle(fontSize: 40)),
         ),
       ),
     );
@@ -365,18 +405,22 @@ class _CravingGameScreenState extends State<CravingGameScreen> with TickerProvid
   }
 }
 
+enum _TargetType { vape, golden, decoy }
+
 class _Target {
   final int id;
   final int gridIndex;
-  final bool isGolden;
+  final _TargetType type;
   final int life;
 
   _Target({
     required this.id,
     required this.gridIndex,
-    required this.isGolden,
+    required this.type,
     required this.life,
   });
+
+  bool get isGolden => type == _TargetType.golden;
 }
 
 extension<T> on Iterable<T> {

@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:speech_to_text/speech_to_text.dart' as stt;
+import 'package:flutter_tts/flutter_tts.dart';
 import 'package:quitvape/services/quit_service.dart';
 import 'package:quitvape/screens/paywall_screen.dart';
 import 'package:quitvape/main.dart';
@@ -22,6 +23,9 @@ class _AICoachScreenState extends State<AICoachScreen> {
   // Voice
   late stt.SpeechToText _speech;
   bool _isListening = false;
+  late FlutterTts _tts;
+  bool _isSpeaking = false;
+  bool _voiceEnabled = true;
 
   // NVIDIA API - injected at build time via --dart-define=NVIDIA_API_KEY=xxx
   // Never hardcoded in source. Falls back to smart local responses if not set.
@@ -47,10 +51,35 @@ STRICT RULES:
   void initState() {
     super.initState();
     _speech = stt.SpeechToText();
-    _messages.add({
+    _tts = FlutterTts();
+    _initTts();
+    if (_messages.isEmpty) {
+      _messages.add({
       'role': 'assistant',
       'content': 'Hey! 👋 I\'m Dr. Quit, your AI health coach! 🩺\n\nI\'m here 24/7 to help you quit vaping and stay healthy.\n\n💬 Type or 🎤 speak — ask me about cravings, withdrawal, or your health!\n\nYou can talk in Urdu, English, Hindi — anything!',
     });
+    }
+  }
+
+  Future<void> _initTts() async {
+    await _tts.setLanguage('en-US');
+    await _tts.setSpeechRate(0.9);
+    await _tts.setPitch(1.0);
+    _tts.setCompletionHandler(() {
+      if (mounted) setState(() => _isSpeaking = false);
+    });
+  }
+
+  Future<void> _speak(String text) async {
+    if (!_voiceEnabled) return;
+    final cleanText = text.replaceAll(RegExp(r'[\u{1F000}-\u{1F9FF}\u{2600}-\u{26FF}\u{2700}-\u{27BF}]', unicode: true), '');
+    if (mounted) setState(() => _isSpeaking = true);
+    await _tts.speak(cleanText);
+  }
+
+  Future<void> _stopSpeaking() async {
+    await _tts.stop();
+    if (mounted) setState(() => _isSpeaking = false);
   }
 
   @override
@@ -58,6 +87,7 @@ STRICT RULES:
     _messageController.dispose();
     _scrollController.dispose();
     _speech.stop();
+    _tts.stop();
     super.dispose();
   }
 
@@ -123,17 +153,20 @@ STRICT RULES:
           _isTyping = false;
         });
         _scrollToBottom();
+        _speak(response);
       }
     } catch (e) {
       if (mounted) {
+        final fallback = _getFallbackResponse(text);
         setState(() {
           _messages.add({
             'role': 'assistant',
-            'content': _getFallbackResponse(text),
+            'content': fallback,
           });
           _isTyping = false;
         });
         _scrollToBottom();
+        _speak(fallback);
       }
     }
   }
@@ -395,6 +428,25 @@ Use their name occasionally. If weight/height is known, you can give personalize
             ),
           ],
         ),
+        actions: [
+          IconButton(
+            icon: Icon(
+              _voiceEnabled ? Icons.volume_up_rounded : Icons.volume_off_rounded,
+              color: _voiceEnabled ? AppStyle.emerald : AppStyle.textFaint,
+            ),
+            onPressed: () {
+              setState(() => _voiceEnabled = !_voiceEnabled);
+              if (!_voiceEnabled) _stopSpeaking();
+            },
+            tooltip: _voiceEnabled ? 'Mute voice' : 'Enable voice',
+          ),
+          if (_isSpeaking)
+            IconButton(
+              icon: const Icon(Icons.stop_rounded, color: AppStyle.red),
+              onPressed: _stopSpeaking,
+              tooltip: 'Stop speaking',
+            ),
+        ],
       ),
       body: Column(
         children: [
