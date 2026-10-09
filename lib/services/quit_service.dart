@@ -169,7 +169,7 @@ class QuitService {
     return true;
   }
 
-  // Shop items - genuinely exciting, curiosity-driven!
+  // Shop items - 100% OFFLINE, no backend needed!
   static List<Map<String, dynamic>> getShopItems() {
     return [
       {
@@ -181,44 +181,44 @@ class QuitService {
         'teaser': 'What games? That\'s the surprise! 🎁',
       },
       {
-        'id': 'ai_coach',
-        'emoji': '🤖',
-        'name': 'AI Quit Coach',
-        'desc': 'Your personal AI that talks you through cravings 24/7',
-        'cost': 1500,
-        'teaser': 'Like having a coach in your pocket!',
-      },
-      {
         'id': 'quit_plan',
         'emoji': '📋',
         'name': 'Personal Quit Plan',
-        'desc': 'Custom plan based on YOUR smoking patterns',
+        'desc': 'Custom 30-day plan based on YOUR habits',
         'cost': 1000,
-        'teaser': 'Built just for you, not generic advice',
-      },
-      {
-        'id': 'community',
-        'emoji': '👥',
-        'name': 'Quitters Community',
-        'desc': 'Chat with 1000s quitting together',
-        'cost': 600,
-        'teaser': 'You\'re not alone in this! 💪',
+        'teaser': 'Built just for you, works offline!',
       },
       {
         'id': 'doctor_report',
         'emoji': '🏥',
         'name': 'Doctor Health Report',
-        'desc': 'Professional PDF report for your doctor',
+        'desc': 'Professional PDF of your recovery',
         'cost': 700,
-        'teaser': 'Show your doctor your amazing progress!',
+        'teaser': 'Show your doctor your progress!',
       },
       {
-        'id': 'challenges',
-        'emoji': '🏁',
-        'name': 'Friend Challenges',
-        'desc': 'Challenge friends: who quits longest?',
+        'id': 'insights_pro',
+        'emoji': '📊',
+        'name': 'Advanced Insights',
+        'desc': 'Craving patterns & predictions',
+        'cost': 600,
+        'teaser': 'Know WHEN cravings will hit!',
+      },
+      {
+        'id': 'breathing_pack',
+        'emoji': '🌬️',
+        'name': 'Breathing Mastery Pack',
+        'desc': '7 advanced breathing techniques',
         'cost': 500,
-        'teaser': 'Competition makes quitting fun! 🔥',
+        'teaser': 'Beyond basic breathing! 🧘',
+      },
+      {
+        'id': 'motivation_pack',
+        'emoji': '🔥',
+        'name': 'Motivation Vault',
+        'desc': '100+ powerful quit quotes & stories',
+        'cost': 400,
+        'teaser': 'Never lose motivation again!',
       },
     ];
   }
