@@ -482,9 +482,11 @@ Use their name occasionally. If weight/height is known, you can give personalize
         border: Border(top: BorderSide(color: Color(0xFF1E2A24))),
       ),
       child: Row(
+        crossAxisAlignment: CrossAxisAlignment.center,
         children: [
           Expanded(
             child: Container(
+              constraints: const BoxConstraints(minHeight: 52),
               decoration: BoxDecoration(
                 color: AppStyle.cardBg,
                 borderRadius: BorderRadius.circular(28),
