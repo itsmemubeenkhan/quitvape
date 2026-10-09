@@ -6,6 +6,7 @@ import 'package:quitvape/screens/quit_plan_screen.dart';
 import 'package:quitvape/screens/doctor_report_screen.dart';
 import 'package:quitvape/screens/insights_screen.dart';
 import 'package:quitvape/screens/craving_game_screen.dart';
+import 'package:quitvape/screens/breathing_screen.dart';
 import 'package:quitvape/main.dart';
 
 class CoinShopScreen extends StatefulWidget {
@@ -197,10 +198,8 @@ class _CoinShopScreenState extends State<CoinShopScreen> {
         screen = const CravingGameScreen();
         break;
       case 'breathing_pack':
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('🌬️ Breathing pack coming in next update!')),
-        );
-        return;
+        screen = const BreathingScreen();
+        break;
     }
     if (screen != null) {
       Navigator.push(context, MaterialPageRoute(builder: (_) => screen!));
