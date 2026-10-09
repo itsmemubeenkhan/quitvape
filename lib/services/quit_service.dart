@@ -169,50 +169,56 @@ class QuitService {
     return true;
   }
 
-  // Shop items
+  // Shop items - genuinely exciting, curiosity-driven!
   static List<Map<String, dynamic>> getShopItems() {
     return [
       {
-        'id': 'sos_games',
+        'id': 'mystery_games',
         'emoji': '🎮',
-        'name': 'Craving Games',
-        'desc': 'Fun tap games to beat urges',
-        'cost': 500,
+        'name': 'Mystery Craving Games',
+        'desc': '5 secret games revealed when unlocked... 👀',
+        'cost': 800,
+        'teaser': 'What games? That\'s the surprise! 🎁',
       },
       {
-        'id': 'sos_grounding',
-        'emoji': '✋',
-        'name': 'Grounding Exercises',
-        'desc': '5-4-3-2-1 senses reset',
-        'cost': 400,
+        'id': 'ai_coach',
+        'emoji': '🤖',
+        'name': 'AI Quit Coach',
+        'desc': 'Your personal AI that talks you through cravings 24/7',
+        'cost': 1500,
+        'teaser': 'Like having a coach in your pocket!',
       },
       {
-        'id': 'insights_pro',
-        'emoji': '📊',
-        'name': 'Advanced Insights',
-        'desc': 'Detailed charts & patterns',
+        'id': 'quit_plan',
+        'emoji': '📋',
+        'name': 'Personal Quit Plan',
+        'desc': 'Custom plan based on YOUR smoking patterns',
+        'cost': 1000,
+        'teaser': 'Built just for you, not generic advice',
+      },
+      {
+        'id': 'community',
+        'emoji': '👥',
+        'name': 'Quitters Community',
+        'desc': 'Chat with 1000s quitting together',
         'cost': 600,
+        'teaser': 'You\'re not alone in this! 💪',
       },
       {
-        'id': 'streak_freeze',
-        'emoji': '🧊',
-        'name': 'Streak Freeze',
-        'desc': 'Protect your streak for 1 day',
-        'cost': 200,
+        'id': 'doctor_report',
+        'emoji': '🏥',
+        'name': 'Doctor Health Report',
+        'desc': 'Professional PDF report for your doctor',
+        'cost': 700,
+        'teaser': 'Show your doctor your amazing progress!',
       },
       {
-        'id': 'theme_gold',
-        'emoji': '✨',
-        'name': 'Gold Theme',
-        'desc': 'Exclusive gold app theme',
-        'cost': 800,
-      },
-      {
-        'id': 'theme_neon',
-        'emoji': '💜',
-        'name': 'Neon Theme',
-        'desc': 'Exclusive neon app theme',
-        'cost': 800,
+        'id': 'challenges',
+        'emoji': '🏁',
+        'name': 'Friend Challenges',
+        'desc': 'Challenge friends: who quits longest?',
+        'cost': 500,
+        'teaser': 'Competition makes quitting fun! 🔥',
       },
     ];
   }
