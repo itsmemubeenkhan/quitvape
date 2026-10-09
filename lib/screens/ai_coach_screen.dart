@@ -1,8 +1,6 @@
 import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
-import 'package:speech_to_text/speech_to_text.dart' as stt;
-import 'package:flutter_tts/flutter_tts.dart';
 import 'package:quitvape/services/quit_service.dart';
 import 'package:quitvape/screens/paywall_screen.dart';
 import 'package:quitvape/main.dart';
@@ -20,11 +18,6 @@ class _AICoachScreenState extends State<AICoachScreen> {
   static final List<Map<String, String>> _messages = [];
   bool _isTyping = false;
 
-  // Voice
-  late stt.SpeechToText _speech;
-  bool _isListening = false;
-  FlutterTts? _tts;
-  bool _voiceEnabled = true;
 
   // NVIDIA API - injected at build time via --dart-define=NVIDIA_API_KEY=xxx
   // Never hardcoded in source. Falls back to smart local responses if not set.
@@ -49,8 +42,6 @@ STRICT RULES:
   @override
   void initState() {
     super.initState();
-    _speech = stt.SpeechToText();
-    _initTts();
     if (_messages.isEmpty) {
       _messages.add({
       'role': 'assistant',
@@ -63,69 +54,7 @@ STRICT RULES:
   void dispose() {
     _messageController.dispose();
     _scrollController.dispose();
-    _speech.stop();
-    _tts?.stop();
     super.dispose();
-  }
-
-  Future<void> _initTts() async {
-    try {
-      _tts = FlutterTts();
-      await _tts!.setLanguage('en-US');
-      await _tts!.setSpeechRate(0.9);
-    } catch (e) {
-      print('TTS init failed: $e');
-    }
-  }
-
-  Future<void> _speak(String text) async {
-    if (!_voiceEnabled || _tts == null) return;
-    try {
-      final clean = text.replaceAll(RegExp(r'[\u{1F300}-\u{1FAFF}\u{2600}-\u{27BF}]', unicode: true), '');
-      await _tts!.speak(clean);
-    } catch (e) {
-      print('TTS failed: $e');
-    }
-  }
-
-  // Voice input: speech to text
-  Future<void> _toggleListening() async {
-    if (_isListening) {
-      await _speech.stop();
-      setState(() => _isListening = false);
-      return;
-    }
-
-    final available = await _speech.initialize(
-      onStatus: (status) {
-        if (status == 'done' || status == 'notListening') {
-          setState(() => _isListening = false);
-        }
-      },
-      onError: (error) {
-        setState(() => _isListening = false);
-      },
-    );
-
-    if (available) {
-      setState(() => _isListening = true);
-      await _speech.listen(
-        onResult: (result) {
-          setState(() {
-            _messageController.text = result.recognizedWords;
-          });
-          if (result.finalResult && result.recognizedWords.isNotEmpty) {
-            _sendMessage();
-          }
-        },
-      );
-    } else {
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('🎤 Mic permission needed for voice chat')),
-        );
-      }
-    }
   }
 
   // Voice output: speak the AI response
@@ -150,7 +79,6 @@ STRICT RULES:
           _isTyping = false;
         });
         _scrollToBottom();
-        _speak(response);
       }
     } catch (e) {
       if (mounted) {
@@ -163,7 +91,6 @@ STRICT RULES:
           _isTyping = false;
         });
         _scrollToBottom();
-        _speak(fallback);
       }
     }
   }
@@ -534,30 +461,6 @@ Use their name occasionally. If weight/height is known, you can give personalize
                 maxLines: null,
                 textInputAction: TextInputAction.send,
                 onSubmitted: (_) => _sendMessage(),
-              ),
-            ),
-          ),
-          const SizedBox(width: 10),
-          GestureDetector(
-            onTap: _toggleListening,
-            child: Container(
-              width: 52,
-              height: 52,
-              decoration: BoxDecoration(
-                color: _isListening ? AppStyle.red : AppStyle.cardBg,
-                shape: BoxShape.circle,
-                border: Border.all(
-                  color: _isListening ? AppStyle.red : const Color(0xFF1E2A24),
-                  width: 2,
-                ),
-                boxShadow: _isListening
-                    ? [BoxShadow(color: AppStyle.red.withOpacity(0.4), blurRadius: 12)]
-                    : null,
-              ),
-              child: Icon(
-                _isListening ? Icons.mic_rounded : Icons.mic_none_rounded,
-                color: _isListening ? Colors.white : AppStyle.emerald,
-                size: 24,
               ),
             ),
           ),
