@@ -29,6 +29,9 @@ class _AICoachScreenState extends State<AICoachScreen> {
   static const String _apiUrl = 'https://integrate.api.nvidia.com/v1/chat/completions';
   static const String _model = 'meta/llama-3.1-70b-instruct';
 
+  // Debug: check if API key is configured (does NOT expose the key)
+  static bool get isApiConfigured => _apiKey.isNotEmpty && _apiKey.length > 10;
+
   // System prompt: health/smoking only, no off-topic chatter
   static const String _systemPrompt = '''You are Dr. Quit, an AI health coach inside the QuitVape app. Your ONLY job is to help users quit vaping/smoking and improve their health.
 
@@ -274,7 +277,28 @@ Use their name occasionally. If weight/height is known, you can give personalize
             icon: const Icon(Icons.arrow_back_rounded, color: Colors.white),
             onPressed: () => Navigator.pop(context),
           ),
-          title: const Text('🤖 AI Quit Coach', style: TextStyle(fontWeight: FontWeight.bold, color: Colors.white)),
+          title: Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              const Text('🤖 AI Quit Coach', style: TextStyle(fontWeight: FontWeight.bold, color: Colors.white)),
+              const SizedBox(width: 8),
+              Container(
+                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                decoration: BoxDecoration(
+                  color: isApiConfigured ? AppStyle.emerald.withOpacity(0.2) : AppStyle.red.withOpacity(0.2),
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                child: Text(
+                  isApiConfigured ? '● LIVE' : '● OFFLINE',
+                  style: TextStyle(
+                    color: isApiConfigured ? AppStyle.emerald : AppStyle.red,
+                    fontSize: 10,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+              ),
+            ],
+          ),
           centerTitle: true,
         ),
         body: Center(
@@ -353,16 +377,16 @@ Use their name occasionally. If weight/height is known, you can give personalize
               child: const Center(child: Text('🤖', style: TextStyle(fontSize: 22))),
             ),
             const SizedBox(width: 10),
-            const Column(
+            Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text('AI Quit Coach', style: TextStyle(fontWeight: FontWeight.bold, color: Colors.white, fontSize: 16)),
+                const Text('AI Quit Coach', style: TextStyle(fontWeight: FontWeight.bold, color: Colors.white, fontSize: 16)),
                 Row(
                   children: [
-                    Icon(Icons.circle, color: AppStyle.emerald, size: 8),
-                    SizedBox(width: 4),
-                    Text('Online • Speaks your language',
-                        style: TextStyle(color: AppStyle.textDim, fontSize: 11)),
+                    Icon(Icons.circle, color: isApiConfigured ? AppStyle.emerald : AppStyle.red, size: 8),
+                    const SizedBox(width: 4),
+                    Text(isApiConfigured ? 'Online • AI Live 🟢' : 'Offline • Limited replies 🔴',
+                        style: const TextStyle(color: AppStyle.textDim, fontSize: 11)),
                   ],
                 ),
               ],
