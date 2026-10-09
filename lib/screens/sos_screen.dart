@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:quitvape/services/quit_service.dart';
 import 'package:quitvape/screens/craving_screen.dart';
 import 'package:quitvape/screens/paywall_screen.dart';
+import 'package:quitvape/screens/ai_coach_screen.dart';
 import 'package:quitvape/main.dart';
 
 class SOSScreen extends StatelessWidget {
@@ -51,6 +52,13 @@ class SOSScreen extends StatelessWidget {
               ),
             ),
             const SizedBox(height: 20),
+            _buildTool(
+              context,
+              icon: '🤖',
+              title: 'AI Quit Coach',
+              desc: 'Chat 24/7 in your language',
+              onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const AICoachScreen())),
+            ),
             _buildTool(
               context,
               icon: '🌬️',

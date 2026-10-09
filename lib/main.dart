@@ -6,6 +6,7 @@ import 'package:quitvape/services/quit_service.dart';
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await QuitService.init();
+  await QuitService.grantTestCoinsIfNeeded(); // 5000 test coins
   runApp(const QuitVapeApp());
 }
 

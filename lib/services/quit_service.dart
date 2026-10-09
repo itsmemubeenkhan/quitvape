@@ -17,6 +17,16 @@ class QuitService {
   static const String _keyNotifications = 'notifications_enabled';
   static const String _keyCoins = 'quit_coins';
   static const String _keyLastCoinClaim = 'last_coin_claim';
+  static const String _keyTestCoinsGranted = 'test_coins_granted';
+
+  // Grant 5000 test coins on first run (for testing)
+  static Future<void> grantTestCoinsIfNeeded() async {
+    final granted = _prefs.getBool(_keyTestCoinsGranted) ?? false;
+    if (!granted) {
+      await _prefs.setInt(_keyCoins, 5000);
+      await _prefs.setBool(_keyTestCoinsGranted, true);
+    }
+  }
 
   static bool hasSeenPostCravingPaywall() {
     return _prefs.getBool(_keyPostCravingPaywall) ?? false;
