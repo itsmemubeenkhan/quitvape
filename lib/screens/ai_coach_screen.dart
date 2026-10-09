@@ -144,14 +144,20 @@ STRICT RULES:
 
     final days = QuitService.getQuitDuration().inDays;
     final cravingsBeaten = QuitService.getCravingsResisted();
+    final userName = QuitService.getUserName();
+    final userWeight = QuitService.getUserWeight();
+    final userHeight = QuitService.getUserHeight();
 
     final systemPrompt = '''$_systemPrompt
 
 About this user:
+- Name: ${userName.isNotEmpty ? userName : 'friend'}
 - $days days vape-free
 - $cravingsBeaten cravings beaten so far
+${userWeight > 0 ? '- Weight: ${userWeight.toStringAsFixed(0)} kg' : ''}
+${userHeight > 0 ? '- Height: ${userHeight.toStringAsFixed(0)} cm' : ''}
 
-Match the user's language (Urdu, English, Hindi, Roman Urdu). Be warm and concise.''';
+Use their name occasionally. If weight/height is known, you can give personalized health tips (e.g., exercise suggestions, lung capacity). Match the user's language (Urdu, English, Hindi, Roman Urdu). Be warm and concise.''';
 
     final messages = [
       {'role': 'system', 'content': systemPrompt},
@@ -181,9 +187,14 @@ Match the user's language (Urdu, English, Hindi, Roman Urdu). Be warm and concis
     }
   }
 
+  // Track last fallback to avoid repetition
+  static int _lastFallbackIndex = -1;
+
   String _getFallbackResponse(String userMessage) {
     final lower = userMessage.toLowerCase();
     final days = QuitService.getQuitDuration().inDays;
+    final name = QuitService.getUserName();
+    final greeting = name.isNotEmpty ? name.split(' ').first : 'friend';
 
     // Detect language - simple heuristic
     final isUrdu = RegExp(r'[\u0600-\u06FF]').hasMatch(userMessage);
@@ -209,20 +220,31 @@ Match the user's language (Urdu, English, Hindi, Roman Urdu). Be warm and concis
       return 'Hey, it happens! 💛 One slip doesn\'t erase $days days of progress.\n\nRestart right now — I\'m with you! What triggered it? Let\'s figure it out together.';
     }
 
-    // Default encouraging responses
+    // Default encouraging responses - varied and personalized, no repeats
     final defaults = isUrdu
         ? [
-            'Bohat khoob! Tum $days din se vape-free ho — ye koi chhoti baat nahi! 🎉 Kuch aur share karna chahte ho?',
-            'Me sun raha hun! 👂 Batao, aaj kaisa feel ho raha hai?',
-            'Tumhari himmat dekh kar khushi hoti hai! 💪 Koi specific cheez pareshan kar rahi hai?',
+            '$greeting, tum $days din se vape-free ho — ye koi chhoti baat nahi! 🎉 Batao, aaj kaisa feel ho raha hai?',
+            'Bohat khoob $greeting! 💪 Tumhari lungs har din heal ho rahi hain. Koi specific cheez pareshan kar rahi hai?',
+            'Tumhari himmat dekh kar khushi hoti hai $greeting! 🌟 Cravings ke bare me baat karna chahte ho ya health tips chahiye?',
+            '$days din! Tum already jeet rahe ho $greeting! 🏆 Batao, me tumhari kis tarah madad kar sakta hun?',
+            'Yaad rakho $greeting — har craving sirf 3 minute ki hoti hai! ⏱️ Tum is se zyada strong ho. Kya chal raha hai?',
           ]
         : [
-            'Amazing! You\'re $days days vape-free — that\'s HUGE! 🎉 Want to share more?',
-            'I\'m listening! 👂 How are you feeling today?',
-            'Your strength inspires me! 💪 Is anything specific bothering you?',
+            '$greeting, you\'re $days days vape-free — that\'s HUGE! 🎉 How are you feeling today?',
+            'Amazing progress $greeting! 💪 Your lungs are healing every single day. What\'s on your mind?',
+            'Your strength inspires me $greeting! 🌟 Want to talk about cravings or get some health tips?',
+            '$days days! You\'re already winning $greeting! 🏆 How can I help you right now?',
+            'Remember $greeting — every craving lasts just 3 minutes! ⏱️ You\'re stronger than that. What\'s going on?',
           ];
 
-    return defaults[DateTime.now().millisecond % defaults.length];
+    // Pick a different response than last time
+    int index;
+    do {
+      index = DateTime.now().millisecond % defaults.length;
+    } while (index == _lastFallbackIndex && defaults.length > 1);
+    _lastFallbackIndex = index;
+
+    return defaults[index];
   }
 
   void _scrollToBottom() {

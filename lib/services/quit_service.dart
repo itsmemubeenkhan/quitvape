@@ -14,6 +14,9 @@ class QuitService {
   static const String _keyLastCheckIn = 'last_checkin_date';
   static const String _keyLastPledge = 'last_pledge_date';
   static const String _keyUserName = 'user_name';
+  static const String _keyUserEmail = 'user_email';
+  static const String _keyUserWeight = 'user_weight';
+  static const String _keyUserHeight = 'user_height';
   static const String _keyNotifications = 'notifications_enabled';
   static const String _keyCoins = 'quit_coins';
   static const String _keyLastCoinClaim = 'last_coin_claim';
@@ -98,6 +101,34 @@ class QuitService {
 
   static Future<void> setUserName(String name) async {
     await _prefs.setString(_keyUserName, name);
+  }
+
+  static String getUserEmail() {
+    return _prefs.getString(_keyUserEmail) ?? '';
+  }
+
+  static Future<void> setUserEmail(String email) async {
+    await _prefs.setString(_keyUserEmail, email);
+  }
+
+  static double getUserWeight() {
+    return _prefs.getDouble(_keyUserWeight) ?? 0;
+  }
+
+  static Future<void> setUserWeight(double weight) async {
+    await _prefs.setDouble(_keyUserWeight, weight);
+  }
+
+  static double getUserHeight() {
+    return _prefs.getDouble(_keyUserHeight) ?? 0;
+  }
+
+  static Future<void> setUserHeight(double height) async {
+    await _prefs.setDouble(_keyUserHeight, height);
+  }
+
+  static bool hasCompletedProfile() {
+    return getUserName().isNotEmpty;
   }
 
   // Notifications

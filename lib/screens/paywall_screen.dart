@@ -2,10 +2,12 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:in_app_purchase/in_app_purchase.dart';
 import 'package:quitvape/services/quit_service.dart';
+import 'package:quitvape/screens/home_screen.dart';
 import 'package:quitvape/main.dart';
 
 class PaywallScreen extends StatefulWidget {
-  const PaywallScreen({super.key});
+  final bool isOnboarding;
+  const PaywallScreen({super.key, this.isOnboarding = false});
 
   @override
   State<PaywallScreen> createState() => _PaywallScreenState();
@@ -96,6 +98,18 @@ class _PaywallScreenState extends State<PaywallScreen> {
 
   void _buy(ProductDetails product) {
     _iap.buyNonConsumable(purchaseParam: PurchaseParam(productDetails: product));
+  }
+
+  void _closePaywall() {
+    if (widget.isOnboarding) {
+      // From onboarding: go to main app
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(builder: (_) => const HomeScreen()),
+      );
+    } else {
+      Navigator.pop(context);
+    }
   }
 
   void _onTrialPressed() {
@@ -286,7 +300,7 @@ class _PaywallScreenState extends State<PaywallScreen> {
               top: 4,
               right: 4,
               child: GestureDetector(
-                onTap: () => Navigator.pop(context),
+                onTap: () => _closePaywall(),
                 child: Container(
                   width: 40,
                   height: 40,

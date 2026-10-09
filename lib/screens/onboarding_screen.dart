@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:quitvape/services/quit_service.dart';
-import 'package:quitvape/screens/home_screen.dart';
+import 'package:quitvape/screens/profile_setup_screen.dart';
 import 'package:quitvape/main.dart';
 
 class OnboardingScreen extends StatefulWidget {
@@ -291,9 +291,10 @@ class _OnboardingScreenState extends State<OnboardingScreen> with TickerProvider
     final cost = double.tryParse(_costController.text) ?? 8.0;
     await QuitService.startQuit(cigsPerDay: cigs, costPerPack: cost);
     if (mounted) {
+      // New flow: Profile Setup → Paywall → App
       Navigator.pushReplacement(
         context,
-        MaterialPageRoute(builder: (_) => const HomeScreen(showPaywallOnStart: true)),
+        MaterialPageRoute(builder: (_) => const ProfileSetupScreen()),
       );
     }
   }
