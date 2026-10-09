@@ -37,7 +37,8 @@ STRICT RULES:
 3. Never provide medical diagnosis. For serious symptoms, advise seeing a doctor.
 4. Be warm, encouraging, and concise. Use the user's language (Urdu, English, Hindi, Roman Urdu — match their language).
 5. Keep responses under 120 words unless they ask for detail.
-6. Celebrate their progress and motivate them to stay vape-free.''';
+6. Celebrate their progress and motivate them to stay vape-free.
+7. NEVER output your internal thinking, reasoning, or analysis. Only output the final response to the user.''';
 
   @override
   void initState() {
@@ -136,12 +137,16 @@ Use their name occasionally. If weight/height is known, you can give personalize
         'messages': messages,
         'temperature': 0.7,
         'max_tokens': 500,
+        'chat_template_kwargs': {'enable_thinking': false},
       }),
     ).timeout(const Duration(seconds: 30));
 
     if (response.statusCode == 200) {
       final data = jsonDecode(response.body);
-      return data['choices'][0]['message']['content'].trim();
+      String content = data['choices'][0]['message']['content'].trim();
+      // Strip thinking process if model still outputs it
+      content = _stripThinking(content);
+      return content;
     } else {
       // Log the actual error for debugging
       print('NVIDIA API Error: ${response.statusCode} - ${response.body.substring(0, response.body.length > 200 ? 200 : response.body.length)}');
@@ -151,6 +156,39 @@ Use their name occasionally. If weight/height is known, you can give personalize
 
   // Track last fallback to avoid repetition
   static int _lastFallbackIndex = -1;
+
+  // Remove model's internal thinking/reasoning from response
+  String _stripThinking(String content) {
+    // Remove "Here's a thinking process:" blocks
+    if (content.contains("Here's a thinking process:")) {
+      // Try to find the actual response after the thinking
+      // The thinking usually ends and the real answer begins
+      // For now, if thinking is detected, extract last meaningful paragraph
+      final lines = content.split('\n');
+      // Find where thinking ends (look for draft/actual response indicators)
+      int startIdx = 0;
+      for (int i = 0; i < lines.length; i++) {
+        final line = lines[i].toLowerCase();
+        if (line.contains('draft') && (line.contains('roman urdu') || line.contains('urdu'))) {
+          startIdx = i;
+          break;
+        }
+      }
+      if (startIdx > 0) {
+        // Extract from draft onwards, clean up the draft markers
+        var result = lines.sublist(startIdx).join('\n');
+        result = result.replaceAll(RegExp(r'^- Draft.*?:\s*', multiLine: true), '');
+        result = result.replaceAll(RegExp(r'^".*"$', multiLine: true), '');
+        result = result.replaceAll('"', '').trim();
+        if (result.isNotEmpty && result.length > 20) return result;
+      }
+      // Fallback: return last 3 lines which usually contain the actual response
+      if (lines.length > 5) {
+        return lines.sublist(lines.length - 3).join('\n').trim();
+      }
+    }
+    return content;
+  }
 
   String _getFallbackResponse(String userMessage) {
     final lower = userMessage.toLowerCase();
