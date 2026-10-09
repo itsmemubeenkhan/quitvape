@@ -1,6 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:quitvape/services/quit_service.dart';
 import 'package:quitvape/screens/paywall_screen.dart';
+import 'package:quitvape/screens/ai_coach_screen.dart';
+import 'package:quitvape/screens/quit_plan_screen.dart';
+import 'package:quitvape/screens/doctor_report_screen.dart';
+import 'package:quitvape/screens/insights_screen.dart';
 import 'package:quitvape/main.dart';
 
 class CoinShopScreen extends StatefulWidget {
@@ -91,16 +95,18 @@ class _CoinShopScreenState extends State<CoinShopScreen> {
     final canAfford = coins >= (item['cost'] as int);
     final isPremium = QuitService.isPremium();
 
-    return Container(
-      margin: const EdgeInsets.only(bottom: 12),
-      padding: const EdgeInsets.all(18),
-      decoration: BoxDecoration(
-        color: AppStyle.cardBg,
-        borderRadius: BorderRadius.circular(18),
-        border: Border.all(
-          color: isUnlocked ? AppStyle.emerald.withOpacity(0.4) : const Color(0xFF1E2A24),
+    return GestureDetector(
+      onTap: isUnlocked ? () => _openItem(item['id'] as String) : null,
+      child: Container(
+        margin: const EdgeInsets.only(bottom: 12),
+        padding: const EdgeInsets.all(18),
+        decoration: BoxDecoration(
+          color: AppStyle.cardBg,
+          borderRadius: BorderRadius.circular(18),
+          border: Border.all(
+            color: isUnlocked ? AppStyle.emerald.withOpacity(0.4) : const Color(0xFF1E2A24),
+          ),
         ),
-      ),
       child: Row(
         children: [
           Container(
@@ -168,6 +174,37 @@ class _CoinShopScreenState extends State<CoinShopScreen> {
         ],
       ),
     );
+  }
+
+  void _openItem(String itemId) {
+    Widget? screen;
+    switch (itemId) {
+      case 'ai_coach':
+        screen = const AICoachScreen();
+        break;
+      case 'quit_plan':
+        screen = const QuitPlanScreen();
+        break;
+      case 'doctor_report':
+        screen = const DoctorReportScreen();
+        break;
+      case 'insights_pro':
+        screen = const InsightsScreen();
+        break;
+      case 'mystery_games':
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('🎮 Mystery games coming in next update!')),
+        );
+        return;
+      case 'breathing_pack':
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('🌬️ Breathing pack coming in next update!')),
+        );
+        return;
+    }
+    if (screen != null) {
+      Navigator.push(context, MaterialPageRoute(builder: (_) => screen!));
+    }
   }
 
   void _buyItem(Map<String, dynamic> item) async {
