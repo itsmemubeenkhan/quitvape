@@ -170,8 +170,17 @@ class QuitService {
   }
 
   // Shop items - 100% OFFLINE, no backend needed!
+  // Note: AI Coach needs NVIDIA API key (user provides)
   static List<Map<String, dynamic>> getShopItems() {
     return [
+      {
+        'id': 'ai_coach',
+        'emoji': '🤖',
+        'name': 'AI Quit Coach',
+        'desc': '24/7 personal coach in YOUR language',
+        'cost': 1500,
+        'teaser': 'Talk, share feelings, get help anytime!',
+      },
       {
         'id': 'mystery_games',
         'emoji': '🎮',
@@ -211,14 +220,6 @@ class QuitService {
         'desc': '7 advanced breathing techniques',
         'cost': 500,
         'teaser': 'Beyond basic breathing! 🧘',
-      },
-      {
-        'id': 'motivation_pack',
-        'emoji': '🔥',
-        'name': 'Motivation Vault',
-        'desc': '100+ powerful quit quotes & stories',
-        'cost': 400,
-        'teaser': 'Never lose motivation again!',
       },
     ];
   }
