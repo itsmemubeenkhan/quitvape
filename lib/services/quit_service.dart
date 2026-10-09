@@ -147,6 +147,76 @@ class QuitService {
     return getCoins() / 100.0;
   }
 
+  // Coin Shop - what coins can buy
+  static const String _keyUnlockedItems = 'unlocked_items';
+
+  static List<String> getUnlockedItems() {
+    return _prefs.getStringList(_keyUnlockedItems) ?? [];
+  }
+
+  static bool isItemUnlocked(String itemId) {
+    return getUnlockedItems().contains(itemId) || isPremium();
+  }
+
+  static Future<bool> purchaseWithCoins(String itemId, int cost) async {
+    if (isItemUnlocked(itemId)) return true;
+    final coins = getCoins();
+    if (coins < cost) return false;
+    await _prefs.setInt(_keyCoins, coins - cost);
+    final items = getUnlockedItems();
+    items.add(itemId);
+    await _prefs.setStringList(_keyUnlockedItems, items);
+    return true;
+  }
+
+  // Shop items
+  static List<Map<String, dynamic>> getShopItems() {
+    return [
+      {
+        'id': 'sos_games',
+        'emoji': '🎮',
+        'name': 'Craving Games',
+        'desc': 'Fun tap games to beat urges',
+        'cost': 500,
+      },
+      {
+        'id': 'sos_grounding',
+        'emoji': '✋',
+        'name': 'Grounding Exercises',
+        'desc': '5-4-3-2-1 senses reset',
+        'cost': 400,
+      },
+      {
+        'id': 'insights_pro',
+        'emoji': '📊',
+        'name': 'Advanced Insights',
+        'desc': 'Detailed charts & patterns',
+        'cost': 600,
+      },
+      {
+        'id': 'streak_freeze',
+        'emoji': '🧊',
+        'name': 'Streak Freeze',
+        'desc': 'Protect your streak for 1 day',
+        'cost': 200,
+      },
+      {
+        'id': 'theme_gold',
+        'emoji': '✨',
+        'name': 'Gold Theme',
+        'desc': 'Exclusive gold app theme',
+        'cost': 800,
+      },
+      {
+        'id': 'theme_neon',
+        'emoji': '💜',
+        'name': 'Neon Theme',
+        'desc': 'Exclusive neon app theme',
+        'cost': 800,
+      },
+    ];
+  }
+
   static Future<void> init() async {
     _prefs = await SharedPreferences.getInstance();
   }

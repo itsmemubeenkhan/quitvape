@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:quitvape/services/quit_service.dart';
+import 'package:quitvape/screens/coin_shop_screen.dart';
 import 'package:quitvape/main.dart';
 
 class RewardsScreen extends StatelessWidget {
@@ -141,6 +142,24 @@ class RewardsScreen extends StatelessWidget {
                     ),
                   ),
                 ],
+                const SizedBox(height: 12),
+                // Shop button
+                SizedBox(
+                  width: double.infinity,
+                  height: 52,
+                  child: OutlinedButton(
+                    onPressed: () => Navigator.push(
+                      context,
+                      MaterialPageRoute(builder: (_) => const CoinShopScreen()),
+                    ),
+                    style: OutlinedButton.styleFrom(
+                      side: const BorderSide(color: AppStyle.gold, width: 1.5),
+                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+                    ),
+                    child: const Text('🛍️ Spend Coins in Shop',
+                        style: TextStyle(color: AppStyle.gold, fontWeight: FontWeight.bold, fontSize: 15)),
+                  ),
+                ),
               ],
             ),
           ),
