@@ -25,9 +25,9 @@ jobs:
       - name: Install dependencies
         run: flutter pub get
       - name: Build APK
-        run: flutter build apk --release
+        run: flutter build apk --release --dart-define=NVIDIA_API_KEY=${{ secrets.NVIDIA_API_KEY }}
       - name: Build AAB
-        run: flutter build appbundle --release
+        run: flutter build appbundle --release --dart-define=NVIDIA_API_KEY=${{ secrets.NVIDIA_API_KEY }}
       - name: Upload APK
         uses: actions/upload-artifact@v4
         with:

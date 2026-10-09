@@ -1,6 +1,8 @@
 import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
+import 'package:speech_to_text/speech_to_text.dart' as stt;
+import 'package:flutter_tts/flutter_tts.dart';
 import 'package:quitvape/services/quit_service.dart';
 import 'package:quitvape/screens/paywall_screen.dart';
 import 'package:quitvape/main.dart';
@@ -18,17 +20,37 @@ class _AICoachScreenState extends State<AICoachScreen> {
   final List<Map<String, String>> _messages = [];
   bool _isTyping = false;
 
-  // NVIDIA API - key will be set by user
-  static const String _apiKey = 'YOUR_NVIDIA_API_KEY_HERE';
+  // Voice
+  late stt.SpeechToText _speech;
+  late FlutterTts _tts;
+  bool _isListening = false;
+  bool _voiceEnabled = true;
+
+  // NVIDIA API - injected at build time via --dart-define=NVIDIA_API_KEY=xxx
+  // Never hardcoded in source. Falls back to smart local responses if not set.
+  static const String _apiKey = String.fromEnvironment('NVIDIA_API_KEY', defaultValue: '');
   static const String _apiUrl = 'https://integrate.api.nvidia.com/v1/chat/completions';
   static const String _model = 'meta/llama-3.1-70b-instruct';
+
+  // System prompt: health/smoking only, no off-topic chatter
+  static const String _systemPrompt = '''You are Dr. Quit, an AI health coach inside the QuitVape app. Your ONLY job is to help users quit vaping/smoking and improve their health.
+
+STRICT RULES:
+1. ONLY answer questions about: quitting vaping/smoking, nicotine addiction, cravings, withdrawal symptoms, lung health, oral health, heart health, mental health related to quitting, healthy alternatives, breathing exercises, diet/exercise during quitting.
+2. If the user asks about ANYTHING else (politics, jokes, coding, movies, general knowledge, math, etc.), politely refuse: "I'm your quit coach — I only help with quitting vaping and health. Ask me about cravings, withdrawal, or your health progress! 💪"
+3. Never provide medical diagnosis. For serious symptoms, advise seeing a doctor.
+4. Be warm, encouraging, and concise. Use the user's language (Urdu, English, Hindi, Roman Urdu — match their language).
+5. Keep responses under 120 words unless they ask for detail.
+6. Celebrate their progress and motivate them to stay vape-free.''';
 
   @override
   void initState() {
     super.initState();
+    _speech = stt.SpeechToText();
+    _tts = FlutterTts();
     _messages.add({
       'role': 'assistant',
-      'content': 'Hey! 👋 I\'m your personal Quit Coach. I\'m here 24/7 to help you stay vape-free.\n\nFeeling a craving? Stressed? Just want to talk? I\'m all ears! 💪\n\nYou can talk to me in your own language — Urdu, English, Hindi, anything!',
+      'content': 'Hey! 👋 I\'m Dr. Quit, your AI health coach! 🩺\n\nI\'m here 24/7 to help you quit vaping and stay healthy.\n\n💬 Type or 🎤 speak — ask me about cravings, withdrawal, or your health!\n\nYou can talk in Urdu, English, Hindi — anything!',
     });
   }
 
@@ -36,7 +58,58 @@ class _AICoachScreenState extends State<AICoachScreen> {
   void dispose() {
     _messageController.dispose();
     _scrollController.dispose();
+    _speech.stop();
+    _tts.stop();
     super.dispose();
+  }
+
+  // Voice input: speech to text
+  Future<void> _toggleListening() async {
+    if (_isListening) {
+      await _speech.stop();
+      setState(() => _isListening = false);
+      return;
+    }
+
+    final available = await _speech.initialize(
+      onStatus: (status) {
+        if (status == 'done' || status == 'notListening') {
+          setState(() => _isListening = false);
+        }
+      },
+      onError: (error) {
+        setState(() => _isListening = false);
+      },
+    );
+
+    if (available) {
+      setState(() => _isListening = true);
+      await _speech.listen(
+        onResult: (result) {
+          setState(() {
+            _messageController.text = result.recognizedWords;
+          });
+          if (result.finalResult && result.recognizedWords.isNotEmpty) {
+            _sendMessage();
+          }
+        },
+      );
+    } else {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('🎤 Mic permission needed for voice chat')),
+        );
+      }
+    }
+  }
+
+  // Voice output: speak the AI response
+  Future<void> _speak(String text) async {
+    if (!_voiceEnabled) return;
+    // Strip emojis for cleaner speech
+    final clean = text.replaceAll(RegExp(r'[^\x00-\x7F\u0600-\u06FF\u0900-\u097F ]'), '');
+    await _tts.setSpeechRate(0.95);
+    await _tts.speak(clean.length > 300 ? clean.substring(0, 300) : clean);
   }
 
   Future<void> _sendMessage() async {
@@ -58,6 +131,7 @@ class _AICoachScreenState extends State<AICoachScreen> {
           _isTyping = false;
         });
         _scrollToBottom();
+        _speak(response); // Voice output
       }
     } catch (e) {
       if (mounted) {
@@ -74,7 +148,7 @@ class _AICoachScreenState extends State<AICoachScreen> {
   }
 
   Future<String> _getAIResponse(String userMessage) async {
-    if (_apiKey == 'YOUR_NVIDIA_API_KEY_HERE') {
+    if (_apiKey.isEmpty) {
       // API not configured yet - use smart fallback
       await Future.delayed(const Duration(seconds: 1));
       return _getFallbackResponse(userMessage);
@@ -83,23 +157,13 @@ class _AICoachScreenState extends State<AICoachScreen> {
     final days = QuitService.getQuitDuration().inDays;
     final cravingsBeaten = QuitService.getCravingsResisted();
 
-    final systemPrompt = '''You are an expert smoking/vaping cessation coach. You're warm, encouraging, and practical.
+    final systemPrompt = '''$_systemPrompt
 
-About the user:
-- ${days} days vape-free
-- ${cravingsBeaten} cravings beaten so far
+About this user:
+- $days days vape-free
+- $cravingsBeaten cravings beaten so far
 
-Your style:
-- Respond in the SAME language the user writes in (Urdu, English, Hindi, Roman Urdu, etc.)
-- Be like a supportive friend, not a robot
-- Give practical, actionable advice
-- Celebrate their progress
-- If they're having a craving, help them ride it out (cravings peak at 3 minutes)
-- Keep responses concise (2-4 sentences usually, longer if they need detailed help)
-- Use emojis sparingly but warmly
-- Never be judgmental if they relapsed - encourage them to restart
-
-Remember: You're helping someone change their life. Be the coach you wish you had.''';
+Match the user's language (Urdu, English, Hindi, Roman Urdu). Be warm and concise.''';
 
     final messages = [
       {'role': 'system', 'content': systemPrompt},
@@ -402,6 +466,30 @@ Remember: You're helping someone change their life. Be the coach you wish you ha
                 maxLines: null,
                 textInputAction: TextInputAction.send,
                 onSubmitted: (_) => _sendMessage(),
+              ),
+            ),
+          ),
+          const SizedBox(width: 10),
+          GestureDetector(
+            onTap: _toggleListening,
+            child: Container(
+              width: 52,
+              height: 52,
+              decoration: BoxDecoration(
+                color: _isListening ? AppStyle.red : AppStyle.cardBg,
+                shape: BoxShape.circle,
+                border: Border.all(
+                  color: _isListening ? AppStyle.red : const Color(0xFF1E2A24),
+                  width: 2,
+                ),
+                boxShadow: _isListening
+                    ? [BoxShadow(color: AppStyle.red.withOpacity(0.4), blurRadius: 12)]
+                    : null,
+              ),
+              child: Icon(
+                _isListening ? Icons.mic_rounded : Icons.mic_none_rounded,
+                color: _isListening ? Colors.white : AppStyle.emerald,
+                size: 24,
               ),
             ),
           ),
