@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:speech_to_text/speech_to_text.dart' as stt;
+import 'package:flutter_tts/flutter_tts.dart';
 import 'package:quitvape/services/quit_service.dart';
 import 'package:quitvape/screens/paywall_screen.dart';
 import 'package:quitvape/main.dart';
@@ -22,6 +23,8 @@ class _AICoachScreenState extends State<AICoachScreen> {
   // Voice
   late stt.SpeechToText _speech;
   bool _isListening = false;
+  FlutterTts? _tts;
+  bool _voiceEnabled = true;
 
   // NVIDIA API - injected at build time via --dart-define=NVIDIA_API_KEY=xxx
   // Never hardcoded in source. Falls back to smart local responses if not set.
@@ -47,6 +50,7 @@ STRICT RULES:
   void initState() {
     super.initState();
     _speech = stt.SpeechToText();
+    _initTts();
     if (_messages.isEmpty) {
       _messages.add({
       'role': 'assistant',
@@ -60,7 +64,28 @@ STRICT RULES:
     _messageController.dispose();
     _scrollController.dispose();
     _speech.stop();
+    _tts?.stop();
     super.dispose();
+  }
+
+  Future<void> _initTts() async {
+    try {
+      _tts = FlutterTts();
+      await _tts!.setLanguage('en-US');
+      await _tts!.setSpeechRate(0.9);
+    } catch (e) {
+      print('TTS init failed: $e');
+    }
+  }
+
+  Future<void> _speak(String text) async {
+    if (!_voiceEnabled || _tts == null) return;
+    try {
+      final clean = text.replaceAll(RegExp(r'[\u{1F300}-\u{1FAFF}\u{2600}-\u{27BF}]', unicode: true), '');
+      await _tts!.speak(clean);
+    } catch (e) {
+      print('TTS failed: $e');
+    }
   }
 
   // Voice input: speech to text
@@ -125,6 +150,7 @@ STRICT RULES:
           _isTyping = false;
         });
         _scrollToBottom();
+        _speak(response);
       }
     } catch (e) {
       if (mounted) {
@@ -137,6 +163,7 @@ STRICT RULES:
           _isTyping = false;
         });
         _scrollToBottom();
+        _speak(fallback);
       }
     }
   }
