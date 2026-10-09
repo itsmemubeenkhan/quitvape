@@ -186,6 +186,8 @@ Use their name occasionally. If weight/height is known, you can give personalize
       final data = jsonDecode(response.body);
       return data['choices'][0]['message']['content'].trim();
     } else {
+      // Log the actual error for debugging
+      print('NVIDIA API Error: ${response.statusCode} - ${response.body.substring(0, response.body.length > 200 ? 200 : response.body.length)}');
       throw Exception('API error: ${response.statusCode}');
     }
   }

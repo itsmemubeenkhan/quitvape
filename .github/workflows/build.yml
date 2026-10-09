@@ -24,6 +24,8 @@ jobs:
         run: yes | $ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager --licenses || true
       - name: Install dependencies
         run: flutter pub get
+      - name: Generate app icons
+        run: flutter pub run flutter_launcher_icons
       - name: Generate release keystore (if not exists)
         run: |
           mkdir -p android/keystore
