@@ -27,7 +27,7 @@ class _AICoachScreenState extends State<AICoachScreen> {
   // Never hardcoded in source. Falls back to smart local responses if not set.
   static const String _apiKey = String.fromEnvironment('NVIDIA_API_KEY', defaultValue: '');
   static const String _apiUrl = 'https://integrate.api.nvidia.com/v1/chat/completions';
-  static const String _model = 'meta/llama-3.1-70b-instruct';
+  static const String _model = 'nvidia/nemotron-3.5-lightning-30b-a3b';
 
   // Debug: check if API key is configured (does NOT expose the key)
   static bool get isApiConfigured => _apiKey.isNotEmpty && _apiKey.length > 10;
