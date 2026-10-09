@@ -40,11 +40,26 @@ class StatsScreen extends StatelessWidget {
                     ],
                   ),
                   const Spacer(),
-                  Container(
-                    width: 44,
-                    height: 44,
-                    decoration: AppStyle.card(),
-                    child: const Icon(Icons.settings_rounded, color: AppStyle.textDim, size: 22),
+                  GestureDetector(
+                    onTap: () {
+                      // Settings navigates to profile (which has all settings)
+                      // Since we're in a tab, we can't easily switch tabs from here
+                      // For now, show a settings bottom sheet
+                      showModalBottomSheet(
+                        context: context,
+                        backgroundColor: AppStyle.cardBg,
+                        shape: const RoundedRectangleBorder(
+                          borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+                        ),
+                        builder: (_) => _buildSettingsSheet(context),
+                      );
+                    },
+                    child: Container(
+                      width: 44,
+                      height: 44,
+                      decoration: AppStyle.card(),
+                      child: const Icon(Icons.settings_rounded, color: AppStyle.textDim, size: 22),
+                    ),
                   ),
                 ],
               ),
@@ -202,5 +217,98 @@ class StatsScreen extends StatelessWidget {
   String _formatNumber(int n) {
     if (n >= 1000) return '${(n / 1000).toStringAsFixed(1)}K'.replaceAll('.0K', 'K');
     return '$n';
+  }
+
+  Widget _buildSettingsSheet(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.all(24),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          const Text('⚙️ Settings',
+              style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold, color: Colors.white)),
+          const SizedBox(height: 20),
+          _settingsItem(
+            context,
+            Icons.notifications_rounded,
+            'Notifications',
+            QuitService.areNotificationsEnabled() ? 'ON' : 'OFF',
+            () async {
+              final current = QuitService.areNotificationsEnabled();
+              await QuitService.setNotificationsEnabled(!current);
+              Navigator.pop(context);
+              ScaffoldMessenger.of(context).showSnackBar(
+                SnackBar(content: Text(!current ? '🔔 Notifications ON' : '🔕 Notifications OFF')),
+              );
+            },
+          ),
+          _settingsItem(
+            context,
+            Icons.person_rounded,
+            'Edit Profile',
+            'Name & preferences',
+            () {
+              Navigator.pop(context);
+              ScaffoldMessenger.of(context).showSnackBar(
+                const SnackBar(content: Text('👤 Go to Profile tab to edit your name')),
+              );
+            },
+          ),
+          _settingsItem(
+            context,
+            Icons.privacy_tip_rounded,
+            'Privacy Policy',
+            'How we handle data',
+            () {
+              Navigator.pop(context);
+              ScaffoldMessenger.of(context).showSnackBar(
+                const SnackBar(content: Text('📄 Privacy policy: all data stays on your device')),
+              );
+            },
+          ),
+          _settingsItem(
+            context,
+            Icons.info_rounded,
+            'About',
+            'QuitVape v1.0.0',
+            () {
+              Navigator.pop(context);
+            },
+          ),
+          const SizedBox(height: 16),
+        ],
+      ),
+    );
+  }
+
+  Widget _settingsItem(BuildContext context, IconData icon, String title, String subtitle, VoidCallback onTap) {
+    return GestureDetector(
+      onTap: onTap,
+      child: Container(
+        margin: const EdgeInsets.only(bottom: 10),
+        padding: const EdgeInsets.all(16),
+        decoration: BoxDecoration(
+          color: const Color(0xFF1A221E),
+          borderRadius: BorderRadius.circular(16),
+        ),
+        child: Row(
+          children: [
+            Icon(icon, color: AppStyle.emerald, size: 24),
+            const SizedBox(width: 14),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(title, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 15, color: Colors.white)),
+                  Text(subtitle, style: const TextStyle(color: AppStyle.textDim, fontSize: 12)),
+                ],
+              ),
+            ),
+            const Icon(Icons.arrow_forward_ios_rounded, color: AppStyle.textFaint, size: 16),
+          ],
+        ),
+      ),
+    );
   }
 }
