@@ -111,14 +111,15 @@ class RewardsScreen extends StatelessWidget {
                   )
                 else
                   Container(
-                    padding: const EdgeInsets.symmetric(vertical: 14),
+                    padding: const EdgeInsets.symmetric(vertical: 14, horizontal: 16),
                     decoration: BoxDecoration(
                       color: const Color(0xFF1E2A24),
                       borderRadius: BorderRadius.circular(16),
                     ),
                     child: const Center(
-                      child: Text('✅ Claimed today! Come back tomorrow 🌅',
-                          style: TextStyle(color: AppStyle.textDim, fontSize: 14)),
+                      child: Text('✅ Claimed today!\nCome back tomorrow 🌅',
+                          textAlign: TextAlign.center,
+                          style: TextStyle(color: AppStyle.textDim, fontSize: 14, height: 1.4)),
                     ),
                   ),
                 if (!isPremium) ...[
