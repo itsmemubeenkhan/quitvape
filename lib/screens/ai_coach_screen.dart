@@ -2,7 +2,6 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:speech_to_text/speech_to_text.dart' as stt;
-import 'package:flutter_tts/flutter_tts.dart';
 import 'package:quitvape/services/quit_service.dart';
 import 'package:quitvape/screens/paywall_screen.dart';
 import 'package:quitvape/main.dart';
@@ -22,9 +21,7 @@ class _AICoachScreenState extends State<AICoachScreen> {
 
   // Voice
   late stt.SpeechToText _speech;
-  late FlutterTts _tts;
   bool _isListening = false;
-  bool _voiceEnabled = true;
 
   // NVIDIA API - injected at build time via --dart-define=NVIDIA_API_KEY=xxx
   // Never hardcoded in source. Falls back to smart local responses if not set.
@@ -47,7 +44,6 @@ STRICT RULES:
   void initState() {
     super.initState();
     _speech = stt.SpeechToText();
-    _tts = FlutterTts();
     _messages.add({
       'role': 'assistant',
       'content': 'Hey! 👋 I\'m Dr. Quit, your AI health coach! 🩺\n\nI\'m here 24/7 to help you quit vaping and stay healthy.\n\n💬 Type or 🎤 speak — ask me about cravings, withdrawal, or your health!\n\nYou can talk in Urdu, English, Hindi — anything!',
@@ -59,7 +55,6 @@ STRICT RULES:
     _messageController.dispose();
     _scrollController.dispose();
     _speech.stop();
-    _tts.stop();
     super.dispose();
   }
 
@@ -104,13 +99,7 @@ STRICT RULES:
   }
 
   // Voice output: speak the AI response
-  Future<void> _speak(String text) async {
-    if (!_voiceEnabled) return;
-    // Strip emojis for cleaner speech
-    final clean = text.replaceAll(RegExp(r'[^\x00-\x7F\u0600-\u06FF\u0900-\u097F ]'), '');
-    await _tts.setSpeechRate(0.95);
-    await _tts.speak(clean.length > 300 ? clean.substring(0, 300) : clean);
-  }
+  // (TTS removed - was breaking Android build. Voice input still works.)
 
   Future<void> _sendMessage() async {
     final text = _messageController.text.trim();
@@ -131,7 +120,6 @@ STRICT RULES:
           _isTyping = false;
         });
         _scrollToBottom();
-        _speak(response); // Voice output
       }
     } catch (e) {
       if (mounted) {
