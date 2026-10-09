@@ -210,6 +210,11 @@ class QuitService {
     return true;
   }
 
+  static Future<void> addCoins(int amount) async {
+    final coins = getCoins();
+    await _prefs.setInt(_keyCoins, coins + amount);
+  }
+
   // Shop items - 100% OFFLINE, no backend needed!
   // Note: AI Coach needs NVIDIA API key (user provides)
   static List<Map<String, dynamic>> getShopItems() {
