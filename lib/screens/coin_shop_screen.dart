@@ -5,6 +5,7 @@ import 'package:quitvape/screens/ai_coach_screen.dart';
 import 'package:quitvape/screens/quit_plan_screen.dart';
 import 'package:quitvape/screens/doctor_report_screen.dart';
 import 'package:quitvape/screens/insights_screen.dart';
+import 'package:quitvape/screens/craving_game_screen.dart';
 import 'package:quitvape/main.dart';
 
 class CoinShopScreen extends StatefulWidget {
@@ -193,10 +194,8 @@ class _CoinShopScreenState extends State<CoinShopScreen> {
         screen = const InsightsScreen();
         break;
       case 'mystery_games':
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('🎮 Mystery games coming in next update!')),
-        );
-        return;
+        screen = const CravingGameScreen();
+        break;
       case 'breathing_pack':
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(content: Text('🌬️ Breathing pack coming in next update!')),

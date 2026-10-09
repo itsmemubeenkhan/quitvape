@@ -46,21 +46,30 @@ class QuitVapeApp extends StatelessWidget {
 
 // Sexy dark-theme styling - inspired by premium quit apps
 class AppStyle {
-  // Colors
+  // Colors - matching QuitVape logo (green leaf + blue swoosh + dark navy)
   static const bg = Color(0xFF0A0F0D);
   static const cardBg = Color(0xFF131A17);
   static const cardBg2 = Color(0xFF1A221E);
   static const emerald = Color(0xFF00E5A0);
   static const emeraldDark = Color(0xFF00B87D);
+  static const skyBlue = Color(0xFF4FC3F7);
+  static const deepBlue = Color(0xFF1E3A5F);
+  static const navy = Color(0xFF1A2B3C);
   static const gold = Color(0xFFFFB800);
   static const red = Color(0xFFFF4D6D);
   static const redDark = Color(0xFFE0355B);
   static const textDim = Color(0xFF8A9A94);
   static const textFaint = Color(0xFF5A6A64);
 
-  // Gradients
+  // Gradients - logo inspired
   static const gradientEmerald = LinearGradient(
     colors: [Color(0xFF00E5A0), Color(0xFF00B87D)],
+    begin: Alignment.topLeft,
+    end: Alignment.bottomRight,
+  );
+
+  static const gradientLogo = LinearGradient(
+    colors: [Color(0xFF00E5A0), Color(0xFF4FC3F7)],
     begin: Alignment.topLeft,
     end: Alignment.bottomRight,
   );
