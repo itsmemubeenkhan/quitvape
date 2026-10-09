@@ -24,6 +24,12 @@ jobs:
         run: yes | $ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager --licenses || true
       - name: Install dependencies
         run: flutter pub get
+      - name: Generate release keystore (if not exists)
+        run: |
+          mkdir -p android/keystore
+          if [ ! -f android/keystore/quitvape.jks ]; then
+            keytool -genkey -v -keystore android/keystore/quitvape.jks -alias quitvape -keyalg RSA -keysize 2048 -validity 10000 -storepass quitvape2026 -keypass quitvape2026 -dname "CN=TheBrandMaker, OU=Apps, O=TheBrandMaker, L=New York, ST=NY, C=US"
+          fi
       - name: Build APK
         run: flutter build apk --release --dart-define=NVIDIA_API_KEY=${{ secrets.NVIDIA_API_KEY }}
       - name: Build AAB
