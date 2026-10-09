@@ -10,6 +10,9 @@ class QuitService {
   static const String _keyIsPremium = 'is_premium';
   static const String _keyCravingsResisted = 'cravings_resisted';
   static const String _keyPostCravingPaywall = 'post_craving_paywall_seen';
+  static const String _keyCheckInStreak = 'checkin_streak';
+  static const String _keyLastCheckIn = 'last_checkin_date';
+  static const String _keyLastPledge = 'last_pledge_date';
 
   static bool hasSeenPostCravingPaywall() {
     return _prefs.getBool(_keyPostCravingPaywall) ?? false;
@@ -17,6 +20,61 @@ class QuitService {
 
   static Future<void> markPostCravingPaywallSeen() async {
     await _prefs.setBool(_keyPostCravingPaywall, true);
+  }
+
+  // Check-in streak
+  static int getCheckInStreak() {
+    return _prefs.getInt(_keyCheckInStreak) ?? 0;
+  }
+
+  static bool hasCheckedInToday() {
+    final last = _prefs.getString(_keyLastCheckIn);
+    if (last == null) return false;
+    final lastDate = DateTime.parse(last);
+    final now = DateTime.now();
+    return lastDate.year == now.year && lastDate.month == now.month && lastDate.day == now.day;
+  }
+
+  static Future<void> saveCheckIn({required int mood, required int cravingStrength, required List<String> triggers}) async {
+    final now = DateTime.now();
+    final last = _prefs.getString(_keyLastCheckIn);
+    int streak = _prefs.getInt(_keyCheckInStreak) ?? 0;
+
+    if (last != null) {
+      final lastDate = DateTime.parse(last);
+      final diff = now.difference(DateTime(lastDate.year, lastDate.month, lastDate.day)).inDays;
+      if (diff == 1) {
+        streak++;
+      } else if (diff > 1) {
+        streak = 1;
+      }
+      // diff == 0 means already checked in today, keep streak
+    } else {
+      streak = 1;
+    }
+
+    await _prefs.setInt(_keyCheckInStreak, streak);
+    await _prefs.setString(_keyLastCheckIn, now.toIso8601String());
+  }
+
+  // Daily pledge
+  static bool hasPledgedToday() {
+    final last = _prefs.getString(_keyLastPledge);
+    if (last == null) return false;
+    final lastDate = DateTime.parse(last);
+    final now = DateTime.now();
+    return lastDate.year == now.year && lastDate.month == now.month && lastDate.day == now.day;
+  }
+
+  static Future<void> makePledge() async {
+    await _prefs.setString(_keyLastPledge, DateTime.now().toIso8601String());
+  }
+
+  static double getDailyCost() {
+    final cigsPerDay = _prefs.getInt(_keyCigsPerDay) ?? 20;
+    final costPerPack = _prefs.getDouble(_keyCostPerPack) ?? 8.0;
+    final cigsPerPack = _prefs.getInt(_keyCigsPerPack) ?? 20;
+    return cigsPerDay * (costPerPack / cigsPerPack);
   }
 
   static Future<void> init() async {

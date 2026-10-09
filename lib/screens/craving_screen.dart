@@ -2,6 +2,7 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:quitvape/services/quit_service.dart';
 import 'package:quitvape/screens/paywall_screen.dart';
+import 'package:quitvape/main.dart';
 
 class CravingScreen extends StatefulWidget {
   const CravingScreen({super.key});
@@ -12,24 +13,28 @@ class CravingScreen extends StatefulWidget {
 
 class _CravingScreenState extends State<CravingScreen> with TickerProviderStateMixin {
   late AnimationController _controller;
-  int _secondsLeft = 300; // 5 minutes
+  int _secondsLeft = 180; // 3 minutes (craving peak)
   late Timer _timer;
   bool _completed = false;
   String _breathPhase = 'Breathe in...';
+  int _breathCount = 0;
 
   @override
   void initState() {
     super.initState();
-    _controller = AnimationController(
-      vsync: this,
-      duration: const Duration(seconds: 4),
-    );
+    _controller = AnimationController(vsync: this, duration: const Duration(seconds: 4));
     _controller.addStatusListener((status) {
-      if (mounted) {
+      if (mounted && (status == AnimationStatus.completed || status == AnimationStatus.dismissed)) {
         setState(() {
-          _breathPhase = status == AnimationStatus.forward || status == AnimationStatus.completed
-              ? 'Breathe in...'
-              : 'Breathe out...';
+          _breathCount++;
+          _breathPhase = status == AnimationStatus.completed ? 'Hold...' : 'Breathe in...';
+        });
+        Future.delayed(const Duration(seconds: 1), () {
+          if (mounted && !_completed) {
+            setState(() {
+              _breathPhase = status == AnimationStatus.completed ? 'Breathe out...' : 'Breathe in...';
+            });
+          }
         });
       }
     });
@@ -58,19 +63,26 @@ class _CravingScreenState extends State<CravingScreen> with TickerProviderStateM
 
   @override
   Widget build(BuildContext context) {
-    final minutes = _secondsLeft ~/ 60;
-    final seconds = _secondsLeft % 60;
-
     return Scaffold(
+      backgroundColor: AppStyle.bg,
       appBar: AppBar(
-        title: const Text('🧘 Beat the Craving'),
+        backgroundColor: Colors.transparent,
+        elevation: 0,
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back_rounded, color: Colors.white),
+          onPressed: () => Navigator.pop(context),
+        ),
+        title: const Text('Guided Breathing', style: TextStyle(fontWeight: FontWeight.bold, color: Colors.white)),
         centerTitle: true,
       ),
-      body: _completed ? _buildCompleted() : _buildBreathing(minutes, seconds),
+      body: _completed ? _buildCompleted() : _buildBreathing(),
     );
   }
 
-  Widget _buildBreathing(int minutes, int seconds) {
+  Widget _buildBreathing() {
+    final minutes = _secondsLeft ~/ 60;
+    final seconds = _secondsLeft % 60;
+
     return Center(
       child: SingleChildScrollView(
         padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 24),
@@ -79,34 +91,38 @@ class _CravingScreenState extends State<CravingScreen> with TickerProviderStateM
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
             const Text(
-              'Cravings last 5 minutes.\nYou are stronger! 💪',
+              'Ride out the craving 🌊',
               textAlign: TextAlign.center,
-              style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold, height: 1.4),
+              style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold, color: Colors.white),
+            ),
+            const SizedBox(height: 8),
+            const Text(
+              'Cravings peak at 3 minutes.\nBreathe with the circle.',
+              textAlign: TextAlign.center,
+              style: TextStyle(color: AppStyle.textDim, fontSize: 14, height: 1.5),
             ),
             const SizedBox(height: 40),
-            // Breathing circle - properly centered
             SizedBox(
-              width: 200,
-              height: 200,
+              width: 220,
+              height: 220,
               child: Stack(
                 alignment: Alignment.center,
                 children: [
                   ScaleTransition(
-                    scale: Tween(begin: 0.85, end: 1.0).animate(
+                    scale: Tween(begin: 0.8, end: 1.0).animate(
                       CurvedAnimation(parent: _controller, curve: Curves.easeInOut),
                     ),
                     child: Container(
-                      width: 180,
-                      height: 180,
+                      width: 200,
+                      height: 200,
                       decoration: BoxDecoration(
                         shape: BoxShape.circle,
-                        color: Colors.blue.shade100,
+                        gradient: LinearGradient(
+                          colors: [AppStyle.emerald.withOpacity(0.3), AppStyle.emerald.withOpacity(0.08)],
+                        ),
+                        border: Border.all(color: AppStyle.emerald.withOpacity(0.4), width: 2),
                         boxShadow: [
-                          BoxShadow(
-                            color: Colors.blue.withOpacity(0.3),
-                            blurRadius: 30,
-                            spreadRadius: 5,
-                          ),
+                          BoxShadow(color: AppStyle.emerald.withOpacity(0.25), blurRadius: 40, spreadRadius: 8),
                         ],
                       ),
                     ),
@@ -114,51 +130,46 @@ class _CravingScreenState extends State<CravingScreen> with TickerProviderStateM
                   Column(
                     mainAxisSize: MainAxisSize.min,
                     children: [
-                      const Text('🫁', style: TextStyle(fontSize: 48)),
+                      const Text('🫁', style: TextStyle(fontSize: 44)),
                       const SizedBox(height: 8),
-                      Text(
-                        _breathPhase,
-                        style: TextStyle(
-                          fontSize: 14,
-                          color: Colors.blue.shade700,
-                          fontWeight: FontWeight.w600,
-                        ),
-                      ),
+                      Text(_breathPhase,
+                          style: const TextStyle(fontSize: 15, color: AppStyle.emerald, fontWeight: FontWeight.w600)),
+                      const SizedBox(height: 4),
+                      Text('Breath $_breathCount',
+                          style: const TextStyle(fontSize: 12, color: AppStyle.textFaint)),
                     ],
                   ),
                 ],
               ),
             ),
             const SizedBox(height: 40),
-            // Timer - centered
             Container(
-              padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 16),
-              decoration: BoxDecoration(
-                color: Theme.of(context).colorScheme.surfaceVariant.withOpacity(0.5),
-                borderRadius: BorderRadius.circular(20),
-              ),
+              padding: const EdgeInsets.symmetric(horizontal: 36, vertical: 18),
+              decoration: AppStyle.card(),
               child: Column(
                 children: [
-                  Text(
-                    '$minutes:${seconds.toString().padLeft(2, '0')}',
-                    style: const TextStyle(
-                      fontSize: 44,
-                      fontWeight: FontWeight.bold,
-                      fontFeatures: [FontFeature.tabularFigures()],
-                    ),
-                  ),
-                  const Text(
-                    'remaining',
-                    style: TextStyle(color: Colors.grey, fontSize: 14),
-                  ),
+                  Text('$minutes:${seconds.toString().padLeft(2, '0')}',
+                      style: const TextStyle(
+                          fontSize: 46, fontWeight: FontWeight.w800, color: Colors.white,
+                          fontFeatures: [FontFeature.tabularFigures()])),
+                  const Text('until craving passes', style: TextStyle(color: AppStyle.textDim, fontSize: 13)),
                 ],
               ),
             ),
             const SizedBox(height: 24),
-            const Text(
-              'Focus on your breathing.\nThe urge will pass.',
-              textAlign: TextAlign.center,
-              style: TextStyle(color: Colors.grey, fontSize: 14, height: 1.5),
+            // Progress bar
+            Container(
+              width: double.infinity,
+              height: 8,
+              decoration: BoxDecoration(color: const Color(0xFF1E2A24), borderRadius: BorderRadius.circular(4)),
+              child: FractionallySizedBox(
+                alignment: Alignment.centerLeft,
+                widthFactor: 1 - (_secondsLeft / 180),
+                child: Container(
+                  decoration: BoxDecoration(
+                      gradient: AppStyle.gradientEmerald, borderRadius: BorderRadius.circular(4)),
+                ),
+              ),
             ),
           ],
         ),
@@ -167,19 +178,13 @@ class _CravingScreenState extends State<CravingScreen> with TickerProviderStateM
   }
 
   Widget _buildCompleted() {
-    // Show paywall after beating craving (emotional high = best conversion moment)
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (mounted && !QuitService.isPremium() && !QuitService.hasSeenPostCravingPaywall()) {
         QuitService.markPostCravingPaywallSeen();
-        Future.delayed(const Duration(milliseconds: 1500), () {
+        Future.delayed(const Duration(milliseconds: 2000), () {
           if (mounted) {
-            Navigator.push(
-              context,
-              MaterialPageRoute(
-                builder: (_) => const PaywallScreen(),
-                fullscreenDialog: true,
-              ),
-            );
+            Navigator.push(context,
+                MaterialPageRoute(builder: (_) => const PaywallScreen(), fullscreenDialog: true));
           }
         });
       }
@@ -192,34 +197,49 @@ class _CravingScreenState extends State<CravingScreen> with TickerProviderStateM
           mainAxisAlignment: MainAxisAlignment.center,
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
-            const Text('🎉', style: TextStyle(fontSize: 80)),
-            const SizedBox(height: 24),
-            const Text(
-              'You beat the craving!',
-              textAlign: TextAlign.center,
-              style: TextStyle(fontSize: 26, fontWeight: FontWeight.bold),
+            Container(
+              width: 120,
+              height: 120,
+              decoration: BoxDecoration(
+                gradient: AppStyle.gradientEmerald,
+                shape: BoxShape.circle,
+                boxShadow: [BoxShadow(color: AppStyle.emerald.withOpacity(0.4), blurRadius: 40, spreadRadius: 8)],
+              ),
+              child: const Center(child: Text('🎉', style: TextStyle(fontSize: 56))),
             ),
+            const SizedBox(height: 28),
+            const Text('Craving crushed!',
+                textAlign: TextAlign.center,
+                style: TextStyle(fontSize: 30, fontWeight: FontWeight.w800, color: Colors.white)),
             const SizedBox(height: 12),
-            const Text(
-              'Every craving you resist\nmakes you stronger.',
-              textAlign: TextAlign.center,
-              style: TextStyle(color: Colors.grey, fontSize: 16, height: 1.5),
-            ),
+            const Text('You just proved you\'re stronger\nthan any craving. 💪',
+                textAlign: TextAlign.center,
+                style: TextStyle(color: AppStyle.textDim, fontSize: 16, height: 1.5)),
             const SizedBox(height: 40),
             SizedBox(
               width: double.infinity,
-              height: 56,
-              child: ElevatedButton(
-                onPressed: () async {
-                  await QuitService.incrementCravingsResisted();
-                  if (mounted) Navigator.pop(context);
-                },
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: const Color(0xFF10B981),
-                  foregroundColor: Colors.white,
-                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+              height: 60,
+              child: Container(
+                decoration: BoxDecoration(
+                  gradient: AppStyle.gradientEmerald,
+                  borderRadius: BorderRadius.circular(18),
+                  boxShadow: [
+                    BoxShadow(color: AppStyle.emerald.withOpacity(0.35), blurRadius: 20, offset: const Offset(0, 10)),
+                  ],
                 ),
-                child: const Text('I Did It! 💪', style: TextStyle(fontSize: 18)),
+                child: ElevatedButton(
+                  onPressed: () async {
+                    await QuitService.incrementCravingsResisted();
+                    if (mounted) Navigator.pop(context);
+                  },
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Colors.transparent,
+                    shadowColor: Colors.transparent,
+                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(18)),
+                  ),
+                  child: const Text('I Did It! 🔥',
+                      style: TextStyle(fontSize: 18, fontWeight: FontWeight.w800, color: Colors.black)),
+                ),
               ),
             ),
           ],

@@ -20,23 +20,23 @@ class _OnboardingScreenState extends State<OnboardingScreen> with TickerProvider
   final List<Map<String, String>> _pages = [
     {
       'emoji': '🚭',
-      'title': 'Break Free\nFrom Smoking',
-      'desc': 'Join thousands who quit vaping & smoking for good with QuitVape',
+      'title': 'Quit vaping\nfor real this time',
+      'desc': 'Join thousands who quit for good with science-backed tools',
     },
     {
       'emoji': '💰',
-      'title': 'Watch Your\nSavings Grow',
+      'title': 'Watch your\nsavings stack up!',
       'desc': 'See exactly how much money you save every single day',
     },
     {
-      'emoji': '❤️',
-      'title': 'Heal Your\nBody Daily',
-      'desc': 'Track real health milestones as your body recovers',
+      'emoji': '📊',
+      'title': 'Spot your patterns\nBeat them',
+      'desc': 'Track cravings, moods & triggers with smart insights',
     },
     {
-      'emoji': '🧘',
-      'title': 'Crush Every\nCraving',
-      'desc': 'Guided breathing exercises when urges hit hardest',
+      'emoji': '🛟',
+      'title': 'SOS tools when\ncravings hit',
+      'desc': 'Guided breathing, games & grounding — ride out any urge',
     },
   ];
 
@@ -44,10 +44,8 @@ class _OnboardingScreenState extends State<OnboardingScreen> with TickerProvider
   void initState() {
     super.initState();
     _pageController = PageController();
-    _floatController = AnimationController(
-      vsync: this,
-      duration: const Duration(seconds: 3),
-    )..repeat(reverse: true);
+    _floatController = AnimationController(vsync: this, duration: const Duration(seconds: 3))
+      ..repeat(reverse: true);
   }
 
   @override
@@ -61,26 +59,10 @@ class _OnboardingScreenState extends State<OnboardingScreen> with TickerProvider
 
   @override
   Widget build(BuildContext context) {
-    final isDark = Theme.of(context).brightness == Brightness.dark;
-
     return Scaffold(
-      body: Container(
-        decoration: BoxDecoration(
-          gradient: isDark
-              ? const LinearGradient(
-                  colors: [Color(0xFF0F0D1A), Color(0xFF1A1533)],
-                  begin: Alignment.topCenter,
-                  end: Alignment.bottomCenter,
-                )
-              : const LinearGradient(
-                  colors: [Color(0xFFF8F7FF), Color(0xFFEDE9FE)],
-                  begin: Alignment.topCenter,
-                  end: Alignment.bottomCenter,
-                ),
-        ),
-        child: SafeArea(
-          child: _currentPage < _pages.length ? _buildCarousel() : _buildSetup(),
-        ),
+      backgroundColor: AppStyle.bg,
+      body: SafeArea(
+        child: _currentPage < _pages.length ? _buildCarousel() : _buildSetup(),
       ),
     );
   }
@@ -88,12 +70,11 @@ class _OnboardingScreenState extends State<OnboardingScreen> with TickerProvider
   Widget _buildCarousel() {
     return Column(
       children: [
-        // Skip button
         Align(
           alignment: Alignment.topRight,
           child: TextButton(
             onPressed: () => setState(() => _currentPage = _pages.length),
-            child: Text('Skip', style: TextStyle(color: Colors.grey.shade500, fontSize: 16)),
+            child: const Text('Skip', style: TextStyle(color: AppStyle.textDim, fontSize: 16)),
           ),
         ),
         Expanded(
@@ -104,56 +85,44 @@ class _OnboardingScreenState extends State<OnboardingScreen> with TickerProvider
             itemBuilder: (context, i) {
               final page = _pages[i];
               return Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 32),
+                padding: const EdgeInsets.symmetric(horizontal: 36),
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    // Floating emoji with glow
                     AnimatedBuilder(
                       animation: _floatController,
                       builder: (context, child) {
                         return Transform.translate(
                           offset: Offset(0, _floatController.value * 16 - 8),
                           child: Container(
-                            width: 180,
-                            height: 180,
+                            width: 170,
+                            height: 170,
                             decoration: BoxDecoration(
                               shape: BoxShape.circle,
-                              gradient: AppStyle.gradientPrimary,
+                              gradient: LinearGradient(
+                                colors: [AppStyle.emerald.withOpacity(0.25), AppStyle.emerald.withOpacity(0.05)],
+                              ),
+                              border: Border.all(color: AppStyle.emerald.withOpacity(0.3), width: 2),
                               boxShadow: [
-                                BoxShadow(
-                                  color: AppStyle.primary.withOpacity(0.4),
-                                  blurRadius: 40,
-                                  spreadRadius: 5,
-                                ),
+                                BoxShadow(color: AppStyle.emerald.withOpacity(0.2), blurRadius: 40, spreadRadius: 5),
                               ],
                             ),
-                            child: Center(
-                              child: Text(page['emoji']!, style: const TextStyle(fontSize: 80)),
-                            ),
+                            child: Center(child: Text(page['emoji']!, style: const TextStyle(fontSize: 76))),
                           ),
                         );
                       },
                     ),
                     const SizedBox(height: 48),
-                    Text(
-                      page['title']!,
-                      textAlign: TextAlign.center,
-                      style: AppStyle.headline(context).copyWith(fontSize: 36, height: 1.2),
-                    ),
+                    Text(page['title']!, textAlign: TextAlign.center, style: AppStyle.headline(size: 34)),
                     const SizedBox(height: 16),
-                    Text(
-                      page['desc']!,
-                      textAlign: TextAlign.center,
-                      style: TextStyle(fontSize: 16, color: Colors.grey.shade500, height: 1.5),
-                    ),
+                    Text(page['desc']!,
+                        textAlign: TextAlign.center, style: AppStyle.subtext().copyWith(fontSize: 16)),
                   ],
                 ),
               );
             },
           ),
         ),
-        // Dots
         Row(
           mainAxisAlignment: MainAxisAlignment.center,
           children: List.generate(_pages.length, (i) {
@@ -164,14 +133,12 @@ class _OnboardingScreenState extends State<OnboardingScreen> with TickerProvider
               height: 8,
               decoration: BoxDecoration(
                 borderRadius: BorderRadius.circular(4),
-                gradient: _currentPage == i ? AppStyle.gradientPrimary : null,
-                color: _currentPage == i ? null : Colors.grey.shade300,
+                color: _currentPage == i ? AppStyle.emerald : const Color(0xFF2A3530),
               ),
             );
           }),
         ),
         const SizedBox(height: 32),
-        // Next button
         Padding(
           padding: const EdgeInsets.symmetric(horizontal: 32),
           child: SizedBox(
@@ -179,23 +146,16 @@ class _OnboardingScreenState extends State<OnboardingScreen> with TickerProvider
             height: 60,
             child: Container(
               decoration: BoxDecoration(
-                gradient: AppStyle.gradientPrimary,
-                borderRadius: BorderRadius.circular(20),
+                gradient: AppStyle.gradientEmerald,
+                borderRadius: BorderRadius.circular(18),
                 boxShadow: [
-                  BoxShadow(
-                    color: AppStyle.primary.withOpacity(0.4),
-                    blurRadius: 20,
-                    offset: const Offset(0, 10),
-                  ),
+                  BoxShadow(color: AppStyle.emerald.withOpacity(0.35), blurRadius: 20, offset: const Offset(0, 10)),
                 ],
               ),
               child: ElevatedButton(
                 onPressed: () {
                   if (_currentPage < _pages.length - 1) {
-                    _pageController.nextPage(
-                      duration: const Duration(milliseconds: 400),
-                      curve: Curves.easeInOut,
-                    );
+                    _pageController.nextPage(duration: const Duration(milliseconds: 400), curve: Curves.easeInOut);
                   } else {
                     setState(() => _currentPage = _pages.length);
                   }
@@ -203,12 +163,10 @@ class _OnboardingScreenState extends State<OnboardingScreen> with TickerProvider
                 style: ElevatedButton.styleFrom(
                   backgroundColor: Colors.transparent,
                   shadowColor: Colors.transparent,
-                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(18)),
                 ),
-                child: Text(
-                  _currentPage < _pages.length - 1 ? 'Next →' : "Let's Begin 🚀",
-                  style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.white),
-                ),
+                child: Text(_currentPage < _pages.length - 1 ? 'Next →' : "Let's Begin 🚀",
+                    style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w800, color: Colors.black)),
               ),
             ),
           ),
@@ -220,19 +178,17 @@ class _OnboardingScreenState extends State<OnboardingScreen> with TickerProvider
 
   Widget _buildSetup() {
     return SingleChildScrollView(
-      padding: const EdgeInsets.all(28),
+      padding: const EdgeInsets.all(24),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const SizedBox(height: 20),
+          const SizedBox(height: 16),
           Container(
             padding: const EdgeInsets.all(20),
             decoration: BoxDecoration(
-              gradient: AppStyle.gradientPrimary,
-              borderRadius: BorderRadius.circular(24),
-              boxShadow: [
-                BoxShadow(color: AppStyle.primary.withOpacity(0.3), blurRadius: 24, offset: const Offset(0, 12)),
-              ],
+              gradient: LinearGradient(colors: [AppStyle.emerald.withOpacity(0.15), AppStyle.emerald.withOpacity(0.05)]),
+              borderRadius: BorderRadius.circular(20),
+              border: Border.all(color: AppStyle.emerald.withOpacity(0.25)),
             ),
             child: const Row(
               children: [
@@ -242,61 +198,28 @@ class _OnboardingScreenState extends State<OnboardingScreen> with TickerProvider
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text('Almost there!',
-                          style: TextStyle(color: Colors.white, fontSize: 20, fontWeight: FontWeight.bold)),
-                      Text('Tell us about your habit',
-                          style: TextStyle(color: Colors.white70, fontSize: 14)),
+                      Text('Almost there!', style: TextStyle(color: Colors.white, fontSize: 20, fontWeight: FontWeight.bold)),
+                      Text('Tell us about your habit', style: TextStyle(color: AppStyle.textDim, fontSize: 14)),
                     ],
                   ),
                 ),
               ],
             ),
           ),
-          const SizedBox(height: 32),
-          _buildInputCard(
-            icon: '🚬',
-            label: 'How many per day?',
-            hint: 'Cigarettes or vapes',
-            controller: _cigsController,
-          ),
-          const SizedBox(height: 16),
-          _buildInputCard(
-            icon: '💵',
-            label: 'Cost per pack (\$)',
-            hint: 'Average price',
-            controller: _costController,
-          ),
-          const SizedBox(height: 16),
-          Container(
-            padding: const EdgeInsets.all(16),
-            decoration: BoxDecoration(
-              color: AppStyle.accent.withOpacity(0.1),
-              borderRadius: BorderRadius.circular(16),
-              border: Border.all(color: AppStyle.accent.withOpacity(0.3)),
-            ),
-            child: Row(
-              children: [
-                const Text('💡', style: TextStyle(fontSize: 24)),
-                const SizedBox(width: 12),
-                Expanded(
-                  child: Text(
-                    'We\'ll calculate your savings and health progress from this',
-                    style: TextStyle(fontSize: 13, color: Colors.grey.shade600),
-                  ),
-                ),
-              ],
-            ),
-          ),
-          const SizedBox(height: 32),
+          const SizedBox(height: 28),
+          _buildInputCard(icon: '🚬', label: 'How many per day?', hint: 'Cigarettes or vapes', controller: _cigsController),
+          const SizedBox(height: 14),
+          _buildInputCard(icon: '💵', label: 'Cost per pack (\$)', hint: 'Average price', controller: _costController),
+          const SizedBox(height: 28),
           SizedBox(
             width: double.infinity,
             height: 62,
             child: Container(
               decoration: BoxDecoration(
-                gradient: AppStyle.gradientSuccess,
-                borderRadius: BorderRadius.circular(20),
+                gradient: AppStyle.gradientEmerald,
+                borderRadius: BorderRadius.circular(18),
                 boxShadow: [
-                  BoxShadow(color: AppStyle.accent.withOpacity(0.4), blurRadius: 20, offset: const Offset(0, 10)),
+                  BoxShadow(color: AppStyle.emerald.withOpacity(0.4), blurRadius: 20, offset: const Offset(0, 10)),
                 ],
               ),
               child: ElevatedButton(
@@ -304,12 +227,10 @@ class _OnboardingScreenState extends State<OnboardingScreen> with TickerProvider
                 style: ElevatedButton.styleFrom(
                   backgroundColor: Colors.transparent,
                   shadowColor: Colors.transparent,
-                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(18)),
                 ),
-                child: const Text(
-                  'I Quit Today! 🎉',
-                  style: TextStyle(fontSize: 19, fontWeight: FontWeight.bold, color: Colors.white),
-                ),
+                child: const Text('I Quit Today! 🎉',
+                    style: TextStyle(fontSize: 19, fontWeight: FontWeight.w800, color: Colors.black)),
               ),
             ),
           ),
@@ -319,30 +240,19 @@ class _OnboardingScreenState extends State<OnboardingScreen> with TickerProvider
     );
   }
 
-  Widget _buildInputCard({
-    required String icon,
-    required String label,
-    required String hint,
-    required TextEditingController controller,
-  }) {
-    final isDark = Theme.of(context).brightness == Brightness.dark;
+  Widget _buildInputCard(
+      {required String icon, required String label, required String hint, required TextEditingController controller}) {
     return Container(
-      padding: const EdgeInsets.all(20),
-      decoration: BoxDecoration(
-        color: isDark ? const Color(0xFF1E1A33) : Colors.white,
-        borderRadius: BorderRadius.circular(20),
-        boxShadow: [
-          BoxShadow(color: Colors.black.withOpacity(0.05), blurRadius: 16, offset: const Offset(0, 6)),
-        ],
-      ),
+      padding: const EdgeInsets.all(18),
+      decoration: AppStyle.card(),
       child: Row(
         children: [
           Container(
             width: 52,
             height: 52,
             decoration: BoxDecoration(
-              gradient: AppStyle.gradientPrimary,
-              borderRadius: BorderRadius.circular(16),
+              color: AppStyle.emerald.withOpacity(0.12),
+              borderRadius: BorderRadius.circular(14),
             ),
             child: Center(child: Text(icon, style: const TextStyle(fontSize: 26))),
           ),
@@ -351,25 +261,22 @@ class _OnboardingScreenState extends State<OnboardingScreen> with TickerProvider
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(label, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 15)),
-                Text(hint, style: TextStyle(color: Colors.grey.shade500, fontSize: 12)),
+                Text(label, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 15, color: Colors.white)),
+                Text(hint, style: const TextStyle(color: AppStyle.textDim, fontSize: 12)),
               ],
             ),
           ),
           SizedBox(
-            width: 90,
+            width: 88,
             child: TextField(
               controller: controller,
               keyboardType: TextInputType.number,
               textAlign: TextAlign.center,
-              style: const TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
+              style: const TextStyle(fontSize: 22, fontWeight: FontWeight.bold, color: Colors.white),
               decoration: InputDecoration(
                 filled: true,
-                fillColor: isDark ? const Color(0xFF2A2545) : const Color(0xFFF5F3FF),
-                border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(14),
-                  borderSide: BorderSide.none,
-                ),
+                fillColor: const Color(0xFF1A221E),
+                border: OutlineInputBorder(borderRadius: BorderRadius.circular(14), borderSide: BorderSide.none),
                 contentPadding: const EdgeInsets.symmetric(vertical: 12),
               ),
             ),
