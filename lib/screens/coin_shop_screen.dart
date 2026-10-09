@@ -173,6 +173,7 @@ class _CoinShopScreenState extends State<CoinShopScreen> {
             ),
         ],
       ),
+      ),
     );
   }
 
