@@ -137,7 +137,7 @@ class _PaywallScreenState extends State<PaywallScreen> {
                   ),
                   _buildTestimonial(
                     '⭐⭐⭐⭐⭐',
-                    '"Saved $1,200 in 4 months. Best investment I ever made in myself."',
+                    '"Saved \$1,200 in 4 months. Best investment I ever made in myself."',
                     '— Ahmed R., quit 121 days ago',
                   ),
                   const SizedBox(height: 20),

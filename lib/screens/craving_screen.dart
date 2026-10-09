@@ -175,7 +175,7 @@ class _CravingScreenState extends State<CravingScreen> with TickerProviderStateM
             Navigator.push(
               context,
               MaterialPageRoute(
-                builder: (_) => const PaywallScreen(showAtStart: false),
+                builder: (_) => const PaywallScreen(),
                 fullscreenDialog: true,
               ),
             );
