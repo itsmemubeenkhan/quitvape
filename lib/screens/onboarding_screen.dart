@@ -536,7 +536,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
             decoration: AppStyle.card(),
             child: Row(
               mainAxisAlignment: MainAxisAlignment.center,
-              crossAxisAlignment: TextBaseline.baseline,
+              crossAxisAlignment: CrossAxisAlignment.baseline,
               textBaseline: TextBaseline.alphabetic,
               children: [
                 Text(_currency,
