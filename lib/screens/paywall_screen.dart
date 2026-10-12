@@ -20,6 +20,7 @@ class _PaywallScreenState extends State<PaywallScreen> {
   bool _loading = true;
   int _selectedIndex = 0;
   String? _error;
+  String? _diagInfo;
 
   // DO NOT CHANGE — must match Play Console subscription IDs
   static const Set<String> _productIds = {
@@ -54,13 +55,12 @@ class _PaywallScreenState extends State<PaywallScreen> {
         onTimeout: () => throw TimeoutException('Plan query timed out'),
       );
       // Debug info for diagnosing missing products.
-      if (response.notFoundIDs.isNotEmpty) {
-        debugPrint(
-            '[QuitVape billing] notFoundIDs: ${response.notFoundIDs}');
-      }
-      if (response.error != null) {
-        debugPrint(
-            '[QuitVape billing] query error: ${response.error!.code} ${response.error!.message}');
+      final diag =
+          'code=${response.error?.code ?? "ok"} msg=${response.error?.message ?? "-"} notFound=${response.notFoundIDs} count=${response.productDetails.length}';
+      debugPrint('[QuitVape billing] $diag');
+      if (mounted) {
+        // Store diagnostic for display in error state (helps remote debugging).
+        _diagInfo = diag;
       }
       final sorted = response.productDetails.toList()
         ..sort((a, b) => _sortOrder(a.id).compareTo(_sortOrder(b.id)));
@@ -468,6 +468,16 @@ class _PaywallScreenState extends State<PaywallScreen> {
                 style: TextStyle(
                     color: AppStyle.primary, fontWeight: FontWeight.w700)),
           ),
+          if (_diagInfo != null)
+            Padding(
+              padding: const EdgeInsets.only(top: 12),
+              child: Text(
+                _diagInfo!,
+                textAlign: TextAlign.center,
+                style: const TextStyle(
+                    color: AppStyle.textFaint, fontSize: 11),
+              ),
+            ),
         ],
       ),
     );
