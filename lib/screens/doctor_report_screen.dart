@@ -19,10 +19,10 @@ class DoctorReportScreen extends StatelessWidget {
         backgroundColor: Colors.transparent,
         elevation: 0,
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back_rounded, color: Colors.white),
+          icon: const Icon(Icons.arrow_back_rounded, color: AppStyle.ink),
           onPressed: () => Navigator.pop(context),
         ),
-        title: const Text('🏥 Health Report', style: TextStyle(fontWeight: FontWeight.bold, color: Colors.white)),
+        title: const Text('🏥 Health Report', style: TextStyle(fontWeight: FontWeight.bold, color: AppStyle.ink)),
         centerTitle: true,
       ),
       body: SingleChildScrollView(
@@ -35,7 +35,7 @@ class DoctorReportScreen extends StatelessWidget {
               width: double.infinity,
               padding: const EdgeInsets.all(24),
               decoration: BoxDecoration(
-                color: Colors.white,
+                color: AppStyle.ink,
                 borderRadius: BorderRadius.circular(20),
               ),
               child: Column(

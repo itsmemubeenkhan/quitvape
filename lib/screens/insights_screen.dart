@@ -20,10 +20,10 @@ class InsightsScreen extends StatelessWidget {
         backgroundColor: Colors.transparent,
         elevation: 0,
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back_rounded, color: Colors.white),
+          icon: const Icon(Icons.arrow_back_rounded, color: AppStyle.ink),
           onPressed: () => Navigator.pop(context),
         ),
-        title: const Text('📊 Advanced Insights', style: TextStyle(fontWeight: FontWeight.bold, color: Colors.white)),
+        title: const Text('📊 Advanced Insights', style: TextStyle(fontWeight: FontWeight.bold, color: AppStyle.ink)),
         centerTitle: true,
       ),
       body: SingleChildScrollView(
@@ -104,7 +104,7 @@ class InsightsScreen extends StatelessWidget {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Text(title, style: const TextStyle(fontSize: 17, fontWeight: FontWeight.bold, color: Colors.white)),
+              Text(title, style: const TextStyle(fontSize: 17, fontWeight: FontWeight.bold, color: AppStyle.ink)),
               Container(
                 padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
                 decoration: BoxDecoration(
@@ -148,7 +148,7 @@ class InsightsScreen extends StatelessWidget {
           children: [
             Expanded(
               flex: 2,
-              child: Text(z['time'] as String, style: const TextStyle(color: Colors.white, fontSize: 13)),
+              child: Text(z['time'] as String, style: const TextStyle(color: AppStyle.ink, fontSize: 13)),
             ),
             Expanded(
               flex: 3,
@@ -156,7 +156,7 @@ class InsightsScreen extends StatelessWidget {
                 borderRadius: BorderRadius.circular(6),
                 child: LinearProgressIndicator(
                   value: z['level'] as double,
-                  backgroundColor: const Color(0xFF1E2A24),
+                  backgroundColor: AppStyle.line,
                   valueColor: AlwaysStoppedAnimation<Color>(
                     (z['level'] as double) > 0.75 ? AppStyle.red : AppStyle.gold,
                   ),

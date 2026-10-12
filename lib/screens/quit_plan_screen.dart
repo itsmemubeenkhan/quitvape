@@ -55,10 +55,10 @@ class QuitPlanScreen extends StatelessWidget {
         backgroundColor: Colors.transparent,
         elevation: 0,
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back_rounded, color: Colors.white),
+          icon: const Icon(Icons.arrow_back_rounded, color: AppStyle.ink),
           onPressed: () => Navigator.pop(context),
         ),
-        title: const Text('📋 Personal Quit Plan', style: TextStyle(fontWeight: FontWeight.bold, color: Colors.white)),
+        title: const Text('📋 Personal Quit Plan', style: TextStyle(fontWeight: FontWeight.bold, color: AppStyle.ink)),
         centerTitle: true,
       ),
       body: SingleChildScrollView(
@@ -78,7 +78,7 @@ class QuitPlanScreen extends StatelessWidget {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   const Text('Your 30-Day Roadmap 🗺️',
-                      style: TextStyle(fontSize: 20, fontWeight: FontWeight.w800, color: Colors.white)),
+                      style: TextStyle(fontSize: 20, fontWeight: FontWeight.w800, color: AppStyle.ink)),
                   const SizedBox(height: 8),
                   Text('Based on $cigsPerDay cigarettes/day habit • You\'re on day $days',
                       style: const TextStyle(color: AppStyle.textDim, fontSize: 14)),
@@ -87,7 +87,7 @@ class QuitPlanScreen extends StatelessWidget {
                     borderRadius: BorderRadius.circular(8),
                     child: LinearProgressIndicator(
                       value: (days / 30).clamp(0.0, 1.0),
-                      backgroundColor: const Color(0xFF1E2A24),
+                      backgroundColor: AppStyle.line,
                       valueColor: const AlwaysStoppedAnimation<Color>(AppStyle.emerald),
                       minHeight: 10,
                     ),
@@ -110,7 +110,7 @@ class QuitPlanScreen extends StatelessWidget {
                   color: AppStyle.cardBg,
                   borderRadius: BorderRadius.circular(20),
                   border: Border.all(
-                    color: isActive ? (phase['color'] as Color).withOpacity(0.4) : const Color(0xFF1E2A24),
+                    color: isActive ? (phase['color'] as Color).withOpacity(0.4) : AppStyle.line,
                     width: isActive ? 2 : 1,
                   ),
                 ),
@@ -126,7 +126,7 @@ class QuitPlanScreen extends StatelessWidget {
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
                               Text(phase['title'] as String,
-                                  style: const TextStyle(fontSize: 17, fontWeight: FontWeight.bold, color: Colors.white)),
+                                  style: const TextStyle(fontSize: 17, fontWeight: FontWeight.bold, color: AppStyle.ink)),
                               Text(phase['days'] as String,
                                   style: TextStyle(color: phase['color'] as Color, fontSize: 13, fontWeight: FontWeight.w600)),
                             ],

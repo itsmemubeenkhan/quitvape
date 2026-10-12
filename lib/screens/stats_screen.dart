@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:quitvape/services/quit_service.dart';
 import 'package:quitvape/screens/milestones_screen.dart';
+import 'package:quitvape/screens/paywall_screen.dart';
 import 'package:quitvape/main.dart';
 
 class StatsScreen extends StatelessWidget {
@@ -35,7 +36,7 @@ class StatsScreen extends StatelessWidget {
                   const Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text('Champion', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.white)),
+                      Text('Champion', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: AppStyle.ink)),
                       Text('Quarter champion', style: TextStyle(color: AppStyle.gold, fontSize: 13)),
                     ],
                   ),
@@ -120,6 +121,10 @@ class StatsScreen extends StatelessWidget {
               ),
               const SizedBox(height: 16),
 
+              // Advanced insights — premium gated
+              _buildAdvancedInsights(context),
+              const SizedBox(height: 16),
+
               // Health milestones link
               GestureDetector(
                 onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const MilestonesScreen())),
@@ -143,7 +148,7 @@ class StatsScreen extends StatelessWidget {
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             Text('Health milestones',
-                                style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Colors.white)),
+                                style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: AppStyle.ink)),
                             Text('See your full recovery roadmap.',
                                 style: TextStyle(color: AppStyle.textDim, fontSize: 13)),
                           ],
@@ -159,6 +164,186 @@ class StatsScreen extends StatelessWidget {
           ),
         ),
       ),
+    );
+  }
+
+  Widget _buildAdvancedInsights(BuildContext context) {
+    final isPremium = QuitService.isPremium();
+    final streak = QuitService.getCheckInStreak();
+    final cravings = QuitService.getCravingsResisted();
+
+    if (!isPremium) {
+      return Container(
+        padding: const EdgeInsets.all(24),
+        decoration: BoxDecoration(
+          gradient: const LinearGradient(
+            colors: [Color(0xFF0E1B14), Color(0xFF1A2B3C)],
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
+          ),
+          borderRadius: BorderRadius.circular(20),
+        ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              children: [
+                Container(
+                  padding: const EdgeInsets.symmetric(
+                      horizontal: 10, vertical: 5),
+                  decoration: BoxDecoration(
+                    color: AppStyle.gold,
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                  child: const Text('PREMIUM',
+                      style: TextStyle(
+                          fontSize: 11,
+                          fontWeight: FontWeight.w800,
+                          color: Colors.black)),
+                ),
+                const SizedBox(width: 10),
+                const Text('Unlock your stats',
+                    style: TextStyle(
+                        fontSize: 19,
+                        fontWeight: FontWeight.w800,
+                        color: Colors.white)),
+              ],
+            ),
+            const SizedBox(height: 12),
+            const Text(
+              'Supercharge your journey with brilliant insights.',
+              style: TextStyle(
+                  color: Color(0xFFB9C8C0), fontSize: 14, height: 1.5),
+            ),
+            const SizedBox(height: 16),
+            _upsellPoint('Identify and overcome your triggers'),
+            _upsellPoint('Learn from your patterns'),
+            _upsellPoint('See your full mood chart'),
+            _upsellPoint('Celebrate every victory'),
+            const SizedBox(height: 20),
+            SizedBox(
+              width: double.infinity,
+              child: ElevatedButton(
+                onPressed: () => Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                        builder: (_) => const PaywallScreen())),
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: AppStyle.primary,
+                  foregroundColor: Colors.white,
+                  elevation: 0,
+                  shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(14)),
+                  minimumSize: const Size(double.infinity, 52),
+                  textStyle: const TextStyle(
+                      fontSize: 16, fontWeight: FontWeight.w700),
+                ),
+                child: const Text('See my stats'),
+              ),
+            ),
+          ],
+        ),
+      );
+    }
+
+    // Premium: show advanced stats
+    return Container(
+      padding: const EdgeInsets.all(20),
+      decoration: AppStyle.card(),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          const Text('Advanced insights',
+              style: TextStyle(
+                  fontSize: 16,
+                  fontWeight: FontWeight.w700,
+                  color: AppStyle.ink)),
+          const SizedBox(height: 16),
+          Row(
+            children: [
+              Expanded(
+                  child: _miniStat('$streak',
+                      'day check-in\nstreak', AppStyle.primary)),
+              Expanded(
+                  child: _miniStat('$cravings',
+                      'cravings\nresisted', AppStyle.gold)),
+              Expanded(
+                  child: _miniStat(
+                      '${QuitService.getReadArticles().length}',
+                      'articles\nread', AppStyle.skyBlue)),
+            ],
+          ),
+          const SizedBox(height: 16),
+          Container(
+            padding: const EdgeInsets.all(16),
+            decoration: BoxDecoration(
+              color: AppStyle.bg,
+              borderRadius: BorderRadius.circular(14),
+            ),
+            child: const Row(
+              children: [
+                Icon(Icons.show_chart_outlined,
+                    color: AppStyle.primary, size: 22),
+                SizedBox(width: 12),
+                Expanded(
+                  child: Text(
+                    'Mood chart unlocks after 7 check-ins. Keep going!',
+                    style: TextStyle(
+                        color: AppStyle.textDim,
+                        fontSize: 13,
+                        height: 1.4),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _upsellPoint(String text) {
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 10),
+      child: Row(
+        children: [
+          const Icon(Icons.check_circle,
+              color: AppStyle.primary, size: 20),
+          const SizedBox(width: 10),
+          Expanded(
+            child: Text(text,
+                style: const TextStyle(
+                    color: Colors.white, fontSize: 14)),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _miniStat(String value, String label, Color accent) {
+    return Column(
+      children: [
+        Container(
+          width: 46,
+          height: 46,
+          decoration: BoxDecoration(
+            color: accent.withOpacity(0.12),
+            borderRadius: BorderRadius.circular(14),
+          ),
+          child: Center(
+            child: Text(value,
+                style: TextStyle(
+                    fontSize: 18,
+                    fontWeight: FontWeight.w800,
+                    color: accent)),
+          ),
+        ),
+        const SizedBox(height: 8),
+        Text(label,
+            textAlign: TextAlign.center,
+            style: const TextStyle(
+                fontSize: 11, color: AppStyle.textDim, height: 1.3)),
+      ],
     );
   }
 
@@ -179,7 +364,7 @@ class StatsScreen extends StatelessWidget {
             child: Center(child: Text(emoji, style: const TextStyle(fontSize: 22))),
           ),
           const SizedBox(height: 14),
-          Text(value, style: const TextStyle(fontSize: 26, fontWeight: FontWeight.w800, color: Colors.white)),
+          Text(value, style: const TextStyle(fontSize: 26, fontWeight: FontWeight.w800, color: AppStyle.ink)),
           const SizedBox(height: 4),
           Text(label, style: const TextStyle(color: AppStyle.textDim, fontSize: 13)),
         ],
@@ -196,7 +381,7 @@ class StatsScreen extends StatelessWidget {
             width: 60,
             height: 60,
             decoration: BoxDecoration(
-              color: earned ? AppStyle.emerald.withOpacity(0.12) : const Color(0xFF1A221E),
+              color: earned ? AppStyle.emerald.withOpacity(0.12) : AppStyle.cardBg2,
               borderRadius: BorderRadius.circular(18),
               border: earned ? Border.all(color: AppStyle.emerald.withOpacity(0.3)) : null,
             ),
@@ -227,7 +412,7 @@ class StatsScreen extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           const Text('⚙️ Settings',
-              style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold, color: Colors.white)),
+              style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold, color: AppStyle.ink)),
           const SizedBox(height: 20),
           _settingsItem(
             context,
@@ -289,7 +474,7 @@ class StatsScreen extends StatelessWidget {
         margin: const EdgeInsets.only(bottom: 10),
         padding: const EdgeInsets.all(16),
         decoration: BoxDecoration(
-          color: const Color(0xFF1A221E),
+          color: AppStyle.cardBg2,
           borderRadius: BorderRadius.circular(16),
         ),
         child: Row(
@@ -300,7 +485,7 @@ class StatsScreen extends StatelessWidget {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text(title, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 15, color: Colors.white)),
+                  Text(title, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 15, color: AppStyle.ink)),
                   Text(subtitle, style: const TextStyle(color: AppStyle.textDim, fontSize: 12)),
                 ],
               ),

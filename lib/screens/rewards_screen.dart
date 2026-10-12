@@ -64,7 +64,7 @@ class RewardsScreen extends StatelessWidget {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text('$coins',
-                            style: const TextStyle(fontSize: 32, fontWeight: FontWeight.w800, color: Colors.white)),
+                            style: const TextStyle(fontSize: 32, fontWeight: FontWeight.w800, color: AppStyle.ink)),
                         const Text('QuitCoins earned', style: TextStyle(color: AppStyle.textDim, fontSize: 13)),
                       ],
                     ),
@@ -113,7 +113,7 @@ class RewardsScreen extends StatelessWidget {
                   Container(
                     padding: const EdgeInsets.symmetric(vertical: 14, horizontal: 16),
                     decoration: BoxDecoration(
-                      color: const Color(0xFF1E2A24),
+                      color: AppStyle.line,
                       borderRadius: BorderRadius.circular(16),
                     ),
                     child: const Center(
@@ -182,13 +182,13 @@ class RewardsScreen extends StatelessWidget {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text('$earnedCount Rewards Earned',
-                          style: const TextStyle(color: Colors.white, fontSize: 17, fontWeight: FontWeight.bold)),
+                          style: const TextStyle(color: AppStyle.ink, fontSize: 17, fontWeight: FontWeight.bold)),
                       const SizedBox(height: 8),
                       ClipRRect(
                         borderRadius: BorderRadius.circular(8),
                         child: LinearProgressIndicator(
                           value: earnedCount / rewards.length,
-                          backgroundColor: const Color(0xFF1E2A24),
+                          backgroundColor: AppStyle.line,
                           valueColor: const AlwaysStoppedAnimation<Color>(AppStyle.gold),
                           minHeight: 8,
                         ),
@@ -221,7 +221,7 @@ class RewardsScreen extends StatelessWidget {
                     color: AppStyle.cardBg,
                     borderRadius: BorderRadius.circular(18),
                     border: Border.all(
-                      color: earned ? AppStyle.gold.withOpacity(0.4) : const Color(0xFF1E2A24),
+                      color: earned ? AppStyle.gold.withOpacity(0.4) : AppStyle.line,
                     ),
                   ),
                   child: Column(
@@ -231,7 +231,7 @@ class RewardsScreen extends StatelessWidget {
                       const SizedBox(height: 8),
                       Text(r['name'] as String,
                           textAlign: TextAlign.center,
-                          style: const TextStyle(fontSize: 13, fontWeight: FontWeight.bold, color: Colors.white)),
+                          style: const TextStyle(fontSize: 13, fontWeight: FontWeight.bold, color: AppStyle.ink)),
                       const SizedBox(height: 4),
                       Text(r['desc'] as String,
                           textAlign: TextAlign.center,

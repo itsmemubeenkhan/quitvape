@@ -4,8 +4,9 @@ import 'package:quitvape/screens/stats_screen.dart';
 import 'package:quitvape/screens/sos_screen.dart';
 import 'package:quitvape/screens/checkin_screen.dart';
 import 'package:quitvape/screens/paywall_screen.dart';
-import 'package:quitvape/screens/rewards_screen.dart';
+import 'package:quitvape/screens/learn_screen.dart';
 import 'package:quitvape/screens/profile_screen.dart';
+import 'package:quitvape/screens/milestones_screen.dart';
 import 'package:quitvape/main.dart';
 
 class HomeScreen extends StatefulWidget {
@@ -27,7 +28,8 @@ class _HomeScreenState extends State<HomeScreen> {
         if (mounted) {
           Navigator.push(
             context,
-            MaterialPageRoute(builder: (_) => const PaywallScreen(), fullscreenDialog: true),
+            MaterialPageRoute(
+                builder: (_) => const PaywallScreen(), fullscreenDialog: true),
           );
         }
       });
@@ -41,11 +43,11 @@ class _HomeScreenState extends State<HomeScreen> {
       body: SafeArea(
         child: IndexedStack(
           index: _currentTab,
-          children: const [
-            HomeTab(),
-            StatsScreen(),
-            RewardsScreen(),
-            ProfileScreen(),
+          children: [
+            HomeTab(onGoProfile: () => setState(() => _currentTab = 3)),
+            const LearnScreen(),
+            const StatsScreen(),
+            const ProfileScreen(),
           ],
         ),
       ),
@@ -56,8 +58,8 @@ class _HomeScreenState extends State<HomeScreen> {
   Widget _buildBottomNav() {
     return Container(
       decoration: const BoxDecoration(
-        color: Color(0xFF0D1310),
-        border: Border(top: BorderSide(color: Color(0xFF1E2A24))),
+        color: Colors.white,
+        border: Border(top: BorderSide(color: AppStyle.line)),
       ),
       child: SafeArea(
         child: Padding(
@@ -65,11 +67,11 @@ class _HomeScreenState extends State<HomeScreen> {
           child: Row(
             mainAxisAlignment: MainAxisAlignment.spaceAround,
             children: [
-              _buildNavItem(0, Icons.home_rounded, 'Home'),
-              _buildNavItem(1, Icons.bar_chart_rounded, 'Stats'),
+              _buildNavItem(0, Icons.home_outlined, Icons.home, 'Home'),
+              _buildNavItem(1, Icons.school_outlined, Icons.school, 'Learn'),
               _buildSOSNavButton(),
-              _buildNavItem(2, Icons.emoji_events_rounded, 'Rewards'),
-              _buildNavItem(3, Icons.person_rounded, 'Profile'),
+              _buildNavItem(2, Icons.bar_chart_outlined, Icons.bar_chart, 'Stats'),
+              _buildNavItem(3, Icons.person_outline, Icons.person, 'Profile'),
             ],
           ),
         ),
@@ -77,7 +79,8 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 
-  Widget _buildNavItem(int index, IconData icon, String label) {
+  Widget _buildNavItem(
+      int index, IconData icon, IconData activeIcon, String label) {
     final isActive = _currentTab == index;
     return GestureDetector(
       onTap: () => setState(() => _currentTab = index),
@@ -87,13 +90,16 @@ class _HomeScreenState extends State<HomeScreen> {
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            Icon(icon, color: isActive ? AppStyle.emerald : AppStyle.textFaint, size: 26),
+            Icon(isActive ? activeIcon : icon,
+                color: isActive ? AppStyle.primary : AppStyle.textFaint,
+                size: 26),
             const SizedBox(height: 4),
             Text(label,
                 style: TextStyle(
                     fontSize: 11,
-                    color: isActive ? AppStyle.emerald : AppStyle.textFaint,
-                    fontWeight: isActive ? FontWeight.bold : FontWeight.normal)),
+                    color: isActive ? AppStyle.primary : AppStyle.textFaint,
+                    fontWeight:
+                        isActive ? FontWeight.w700 : FontWeight.normal)),
           ],
         ),
       ),
@@ -102,30 +108,40 @@ class _HomeScreenState extends State<HomeScreen> {
 
   Widget _buildSOSNavButton() {
     return GestureDetector(
-      onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const SOSScreen())),
+      onTap: () => Navigator.push(
+          context, MaterialPageRoute(builder: (_) => const SOSScreen())),
       child: Container(
-        width: 60,
-        height: 60,
+        width: 58,
+        height: 58,
         decoration: BoxDecoration(
-          gradient: AppStyle.gradientEmerald,
+          color: AppStyle.primary,
           shape: BoxShape.circle,
-          boxShadow: [BoxShadow(color: AppStyle.emerald.withOpacity(0.4), blurRadius: 20, offset: const Offset(0, 8))],
+          boxShadow: [
+            BoxShadow(
+                color: AppStyle.primary.withOpacity(0.35),
+                blurRadius: 16,
+                offset: const Offset(0, 6)),
+          ],
         ),
-        child: const Icon(Icons.support_rounded, color: Colors.black, size: 28),
+        child:
+            const Icon(Icons.support_outlined, color: Colors.white, size: 28),
       ),
     );
   }
 }
 
-// Home tab content (separate widget to keep timer alive)
+// ---------------- Home tab ----------------
+
 class HomeTab extends StatefulWidget {
-  const HomeTab({super.key});
+  final VoidCallback? onGoProfile;
+  const HomeTab({super.key, this.onGoProfile});
 
   @override
   State<HomeTab> createState() => _HomeTabState();
 }
 
-class _HomeTabState extends State<HomeTab> with AutomaticKeepAliveClientMixin {
+class _HomeTabState extends State<HomeTab>
+    with AutomaticKeepAliveClientMixin {
   @override
   bool get wantKeepAlive => true;
 
@@ -140,299 +156,35 @@ class _HomeTabState extends State<HomeTab> with AutomaticKeepAliveClientMixin {
         final hours = duration.inHours % 24;
         final minutes = duration.inMinutes % 60;
         final seconds = duration.inSeconds % 60;
-        final checkInStreak = QuitService.getCheckInStreak();
-        final hasCheckedInToday = QuitService.hasCheckedInToday();
-        final hasPledgedToday = QuitService.hasPledgedToday();
         final userName = QuitService.getUserName();
-
-        String championTitle = 'GETTING STARTED';
-        if (days >= 90) {
-          championTitle = 'QUARTER CHAMPION';
-        } else if (days >= 30) {
-          championTitle = 'MONTH WARRIOR';
-        } else if (days >= 14) {
-          championTitle = 'FORTNIGHT FIGHTER';
-        } else if (days >= 7) {
-          championTitle = 'WEEK WINNER';
-        }
+        final greeting = _greeting();
 
         return SingleChildScrollView(
-          padding: const EdgeInsets.all(20),
+          padding: const EdgeInsets.fromLTRB(20, 12, 20, 24),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              // Header with profile
-              Row(
-                children: [
-                  GestureDetector(
-                    onTap: () {
-                      // Go to profile tab - handled by parent
-                    },
-                    child: Container(
-                      width: 48,
-                      height: 48,
-                      decoration: BoxDecoration(
-                        gradient: AppStyle.gradientGold,
-                        shape: BoxShape.circle,
-                      ),
-                      child: Center(
-                        child: Text(
-                          userName.isEmpty ? '🔥' : userName[0].toUpperCase(),
-                          style: const TextStyle(fontSize: 22, fontWeight: FontWeight.bold, color: Colors.black),
-                        ),
-                      ),
-                    ),
-                  ),
-                  const SizedBox(width: 12),
-                  Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(userName.isEmpty ? 'Champion' : userName,
-                          style: const TextStyle(fontSize: 17, fontWeight: FontWeight.bold, color: Colors.white)),
-                      const Text('Keep going strong! 💪', style: TextStyle(color: AppStyle.textDim, fontSize: 12)),
-                    ],
-                  ),
-                  const Spacer(),
-                  if (!QuitService.isPremium())
-                    GestureDetector(
-                      onTap: () => Navigator.push(
-                          context, MaterialPageRoute(builder: (_) => const PaywallScreen())),
-                      child: Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
-                        decoration: BoxDecoration(
-                          gradient: AppStyle.gradientGold,
-                          borderRadius: BorderRadius.circular(20),
-                        ),
-                        child: const Row(
-                          children: [
-                            Text('👑', style: TextStyle(fontSize: 14)),
-                            SizedBox(width: 4),
-                            Text('GO PRO',
-                                style: TextStyle(fontWeight: FontWeight.bold, fontSize: 12, color: Colors.black)),
-                          ],
-                        ),
-                      ),
-                    ),
-                ],
-              ),
-              const SizedBox(height: 24),
-
-              // Hero card
-              Container(
-                width: double.infinity,
-                padding: const EdgeInsets.all(24),
-                decoration: AppStyle.heroCard(),
-                child: Column(
-                  children: [
-                    Row(
-                      children: [
-                        Container(
-                          width: 56,
-                          height: 56,
-                          decoration: BoxDecoration(
-                            color: AppStyle.gold.withOpacity(0.15),
-                            borderRadius: BorderRadius.circular(16),
-                          ),
-                          child: const Center(child: Text('🏆', style: TextStyle(fontSize: 30))),
-                        ),
-                        const SizedBox(width: 16),
-                        Expanded(
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Container(
-                                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-                                decoration: BoxDecoration(
-                                  color: AppStyle.gold.withOpacity(0.15),
-                                  borderRadius: BorderRadius.circular(8),
-                                ),
-                                child: Text(championTitle,
-                                    style: const TextStyle(
-                                        color: AppStyle.gold,
-                                        fontSize: 11,
-                                        fontWeight: FontWeight.bold,
-                                        letterSpacing: 1)),
-                              ),
-                              const SizedBox(height: 6),
-                              Text('$days days free',
-                                  style: const TextStyle(
-                                      fontSize: 32, fontWeight: FontWeight.w800, color: Colors.white)),
-                            ],
-                          ),
-                        ),
-                      ],
-                    ),
-                    const SizedBox(height: 20),
-                    _buildWeeklyDots(),
-                    const SizedBox(height: 12),
-                    Row(
-                      children: [
-                        const Text('🏆', style: TextStyle(fontSize: 14)),
-                        const SizedBox(width: 8),
-                        Text(
-                          days >= 180
-                              ? 'You are a Half-year hero!'
-                              : '${180 - days} days to Half-year hero',
-                          style: const TextStyle(color: AppStyle.textDim, fontSize: 13),
-                        ),
-                      ],
-                    ),
-                  ],
-                ),
-              ),
-              const SizedBox(height: 16),
-
-              // Timer row
-              Row(
-                children: [
-                  Expanded(child: _buildTimeBox('$days', 'DAYS')),
-                  const SizedBox(width: 10),
-                  Expanded(child: _buildTimeBox(hours.toString().padLeft(2, '0'), 'HRS')),
-                  const SizedBox(width: 10),
-                  Expanded(child: _buildTimeBox(minutes.toString().padLeft(2, '0'), 'MIN')),
-                  const SizedBox(width: 10),
-                  Expanded(child: _buildTimeBox(seconds.toString().padLeft(2, '0'), 'SEC')),
-                ],
-              ),
-              const SizedBox(height: 16),
-
-              // SOS Button
-              GestureDetector(
-                onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const SOSScreen())),
-                child: Container(
-                  width: double.infinity,
-                  padding: const EdgeInsets.symmetric(vertical: 20),
-                  decoration: BoxDecoration(
-                    gradient: AppStyle.gradientRed,
-                    borderRadius: BorderRadius.circular(20),
-                    boxShadow: [
-                      BoxShadow(color: AppStyle.red.withOpacity(0.35), blurRadius: 24, offset: const Offset(0, 12)),
-                    ],
-                  ),
-                  child: const Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      Text('🛟', style: TextStyle(fontSize: 24)),
-                      SizedBox(width: 12),
-                      Text('SOS — I\'m craving',
-                          style: TextStyle(fontSize: 19, fontWeight: FontWeight.bold, color: Colors.white)),
-                    ],
-                  ),
-                ),
-              ),
-              const SizedBox(height: 16),
-
-              // Check-in card
-              GestureDetector(
-                onTap: hasCheckedInToday
-                    ? null
-                    : () => Navigator.push(context, MaterialPageRoute(builder: (_) => const CheckInScreen()))
-                        .then((_) => setState(() {})),
-                child: Container(
-                  padding: const EdgeInsets.all(20),
-                  decoration: AppStyle.card(),
-                  child: Row(
-                    children: [
-                      Container(
-                        width: 52,
-                        height: 52,
-                        decoration: BoxDecoration(
-                          color: AppStyle.emerald.withOpacity(0.12),
-                          borderRadius: BorderRadius.circular(14),
-                        ),
-                        child: Icon(
-                          hasCheckedInToday ? Icons.check_circle_rounded : Icons.calendar_today_rounded,
-                          color: AppStyle.emerald,
-                          size: 26,
-                        ),
-                      ),
-                      const SizedBox(width: 16),
-                      Expanded(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(hasCheckedInToday ? 'Checked in today' : 'Daily check-in',
-                                style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Colors.white)),
-                            Text(
-                              hasCheckedInToday
-                                  ? '$checkInStreak-day check-in streak 🔥'
-                                  : 'How are you feeling today?',
-                              style: const TextStyle(color: AppStyle.textDim, fontSize: 13),
-                            ),
-                          ],
-                        ),
-                      ),
-                      if (hasCheckedInToday)
-                        const Icon(Icons.check_circle, color: AppStyle.emerald, size: 28),
-                    ],
-                  ),
-                ),
-              ),
-              const SizedBox(height: 12),
-
-              // Daily pledge card
-              Container(
-                padding: const EdgeInsets.all(20),
-                decoration: AppStyle.card(),
-                child: Row(
-                  children: [
-                    Container(
-                      width: 52,
-                      height: 52,
-                      decoration: BoxDecoration(
-                        color: AppStyle.emerald.withOpacity(0.12),
-                        borderRadius: BorderRadius.circular(14),
-                      ),
-                      child: const Center(child: Text('🤝', style: TextStyle(fontSize: 26))),
-                    ),
-                    const SizedBox(width: 16),
-                    const Expanded(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text('Daily pledge',
-                              style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Colors.white)),
-                          Text('Commit to staying vape-free today.',
-                              style: TextStyle(color: AppStyle.textDim, fontSize: 13)),
-                        ],
-                      ),
-                    ),
-                    GestureDetector(
-                      onTap: () async {
-                        if (!hasPledgedToday) {
-                          await QuitService.makePledge();
-                          setState(() {});
-                          if (mounted) {
-                            ScaffoldMessenger.of(context).showSnackBar(
-                              const SnackBar(
-                                content: Text('🤝 Pledge made! You\'ve got this!'),
-                                backgroundColor: Color(0xFF00B87D),
-                              ),
-                            );
-                          }
-                        }
-                      },
-                      child: Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 12),
-                        decoration: BoxDecoration(
-                          gradient: hasPledgedToday ? null : AppStyle.gradientEmerald,
-                          color: hasPledgedToday ? const Color(0xFF1E2A24) : null,
-                          borderRadius: BorderRadius.circular(24),
-                        ),
-                        child: Text(
-                          hasPledgedToday ? '✓ Pledged' : 'I pledge',
-                          style: TextStyle(
-                            fontWeight: FontWeight.bold,
-                            fontSize: 14,
-                            color: hasPledgedToday ? AppStyle.emerald : Colors.black,
-                          ),
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-              ),
+              _buildHeader(userName, greeting),
               const SizedBox(height: 20),
+              _buildTimerCard(days, hours, minutes, seconds),
+              const SizedBox(height: 16),
+              _buildProgressCard(),
+              const SizedBox(height: 16),
+              _buildMilestoneCard(),
+              const SizedBox(height: 24),
+              _buildSectionTitle('Achievements'),
+              const SizedBox(height: 12),
+              _buildAchievements(),
+              const SizedBox(height: 24),
+              _buildSectionTitle('Health improvements'),
+              const SizedBox(height: 12),
+              _buildHealthTimeline(),
+              const SizedBox(height: 24),
+              _buildSectionTitle('Today'),
+              const SizedBox(height: 12),
+              _buildCheckInCard(),
+              const SizedBox(height: 12),
+              _buildPledgeCard(),
             ],
           ),
         );
@@ -440,64 +192,621 @@ class _HomeTabState extends State<HomeTab> with AutomaticKeepAliveClientMixin {
     );
   }
 
-  Widget _buildWeeklyDots() {
-    final now = DateTime.now();
-    final startOfWeek = now.subtract(Duration(days: now.weekday - 1));
-    final quitDate = QuitService.getStartDate();
+  String _greeting() {
+    final h = DateTime.now().hour;
+    if (h < 12) return 'Good morning';
+    if (h < 17) return 'Good afternoon';
+    return 'Good evening';
+  }
 
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-      children: List.generate(7, (i) {
-        final day = startOfWeek.add(Duration(days: i));
-        final isActive = !day.isAfter(now) && !day.isBefore(DateTime(quitDate.year, quitDate.month, quitDate.day));
-        final isToday = day.day == now.day && day.month == now.month;
-        const dayLabels = ['M', 'T', 'W', 'T', 'F', 'S', 'S'];
+  Widget _buildMilestoneCard() {
+    final milestones = QuitService.getMilestones();
+    final hours = QuitService.getQuitDuration().inHours;
+    Map<String, dynamic>? next;
+    for (final m in milestones) {
+      if (hours < (m['hours'] as int)) {
+        next = m;
+        break;
+      }
+    }
+    next ??= milestones.last;
+    final targetHours = next['hours'] as int;
+    final progress = targetHours == 0
+        ? 1.0
+        : (hours / targetHours).clamp(0.0, 1.0);
+    final remaining = targetHours - hours;
+    final remainingLabel = remaining <= 0
+        ? 'Reached!'
+        : remaining < 24
+            ? '$remaining hrs to go'
+            : '${(remaining / 24).floor()} days to go';
 
-        return Column(
-          children: [
-            Container(
-              width: 40,
-              height: 40,
-              decoration: BoxDecoration(
-                color: isActive ? AppStyle.emerald.withOpacity(0.15) : const Color(0xFF1A221E),
-                borderRadius: BorderRadius.circular(12),
-                border: isToday ? Border.all(color: AppStyle.emerald, width: 1.5) : null,
-              ),
-              child: Center(
-                child: Container(
-                  width: 8,
-                  height: 8,
-                  decoration: BoxDecoration(
-                    color: isActive ? AppStyle.emerald : const Color(0xFF2A3530),
-                    shape: BoxShape.circle,
-                  ),
-                ),
-              ),
+    return Container(
+      padding: const EdgeInsets.all(20),
+      decoration: AppStyle.card(),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              const Icon(Icons.flag_outlined,
+                  size: 18, color: AppStyle.textDim),
+              const SizedBox(width: 8),
+              const Text('Next milestone',
+                  style: TextStyle(
+                      fontSize: 13,
+                      fontWeight: FontWeight.w600,
+                      color: AppStyle.textDim)),
+              const Spacer(),
+              Text('${(progress * 100).round()}%',
+                  style: const TextStyle(
+                      fontSize: 14,
+                      fontWeight: FontWeight.w800,
+                      color: AppStyle.primary)),
+            ],
+          ),
+          const SizedBox(height: 12),
+          Text(next['title'] as String,
+              style: const TextStyle(
+                  fontSize: 18,
+                  fontWeight: FontWeight.w800,
+                  color: AppStyle.ink)),
+          const SizedBox(height: 4),
+          Text(next['desc'] as String,
+              style: const TextStyle(
+                  fontSize: 14, color: AppStyle.textDim)),
+          const SizedBox(height: 14),
+          ClipRRect(
+            borderRadius: BorderRadius.circular(6),
+            child: LinearProgressIndicator(
+              value: progress,
+              minHeight: 8,
+              backgroundColor: AppStyle.line,
+              valueColor: const AlwaysStoppedAnimation<Color>(
+                  AppStyle.primary),
             ),
-            const SizedBox(height: 6),
-            Text(dayLabels[i],
-                style: TextStyle(
-                    fontSize: 11,
-                    color: isToday ? AppStyle.emerald : AppStyle.textFaint,
-                    fontWeight: isToday ? FontWeight.bold : FontWeight.normal)),
-          ],
-        );
-      }),
+          ),
+          const SizedBox(height: 8),
+          Row(
+            children: [
+              Text(remainingLabel,
+                  style: const TextStyle(
+                      fontSize: 13,
+                      color: AppStyle.textDim,
+                      fontWeight: FontWeight.w500)),
+              const Spacer(),
+              TextButton(
+                onPressed: () => Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                      builder: (_) => const MilestonesScreen()),
+                ),
+                style: TextButton.styleFrom(
+                  padding: EdgeInsets.zero,
+                  minimumSize: Size.zero,
+                  tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                ),
+                child: const Text('View all',
+                    style: TextStyle(
+                        color: AppStyle.primary,
+                        fontWeight: FontWeight.w700,
+                        fontSize: 13)),
+              ),
+            ],
+          ),
+        ],
+      ),
     );
   }
 
-  Widget _buildTimeBox(String value, String label) {
+  Widget _buildSectionTitle(String title) {
+    return Text(title,
+        style: AppStyle.headline(size: 20));
+  }
+
+  Widget _buildHeader(String userName, String greeting) {
+    return Row(
+      children: [
+        GestureDetector(
+          onTap: widget.onGoProfile,
+          child: Container(
+            width: 48,
+            height: 48,
+            decoration: BoxDecoration(
+              color: AppStyle.primarySoft,
+              shape: BoxShape.circle,
+              border: Border.all(color: AppStyle.line),
+            ),
+            child: Center(
+              child: Text(
+                userName.isEmpty
+                    ? greeting[0]
+                    : userName[0].toUpperCase(),
+                style: const TextStyle(
+                    fontSize: 20,
+                    fontWeight: FontWeight.w700,
+                    color: AppStyle.primary),
+              ),
+            ),
+          ),
+        ),
+        const SizedBox(width: 12),
+        Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(greeting,
+                style: const TextStyle(
+                    fontSize: 13, color: AppStyle.textDim)),
+            Text(userName.isEmpty ? 'Welcome back' : userName,
+                style: const TextStyle(
+                    fontSize: 17,
+                    fontWeight: FontWeight.w700,
+                    color: AppStyle.ink)),
+          ],
+        ),
+        const Spacer(),
+        if (!QuitService.isPremium())
+          GestureDetector(
+            onTap: () => Navigator.push(context,
+                MaterialPageRoute(builder: (_) => const PaywallScreen())),
+            child: Container(
+              padding: const EdgeInsets.symmetric(
+                  horizontal: 14, vertical: 9),
+              decoration: BoxDecoration(
+                color: AppStyle.ink,
+                borderRadius: BorderRadius.circular(20),
+              ),
+              child: const Row(
+                children: [
+                  Icon(Icons.star_outline,
+                      size: 15, color: Colors.white),
+                  SizedBox(width: 5),
+                  Text('Go Premium',
+                      style: TextStyle(
+                          fontWeight: FontWeight.w700,
+                          fontSize: 13,
+                          color: Colors.white)),
+                ],
+              ),
+            ),
+          ),
+      ],
+    );
+  }
+
+  Widget _buildTimerCard(int days, int hours, int minutes, int seconds) {
     return Container(
-      padding: const EdgeInsets.symmetric(vertical: 16),
-      decoration: AppStyle.card(),
+      width: double.infinity,
+      padding: const EdgeInsets.symmetric(vertical: 28, horizontal: 20),
+      decoration: AppStyle.heroCard(),
       child: Column(
         children: [
-          Text(value,
-              style: const TextStyle(
-                  fontSize: 28, fontWeight: FontWeight.w800, color: Colors.white,
-                  fontFeatures: [FontFeature.tabularFigures()])),
-          const SizedBox(height: 4),
-          Text(label, style: const TextStyle(fontSize: 11, color: AppStyle.textDim, letterSpacing: 1.5)),
+          const Text('VAPE-FREE FOR',
+              style: TextStyle(
+                  fontSize: 12,
+                  fontWeight: FontWeight.w700,
+                  letterSpacing: 2,
+                  color: AppStyle.textDim)),
+          const SizedBox(height: 16),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              _timeUnit('$days', 'days'),
+              _timeSep(),
+              _timeUnit(hours.toString().padLeft(2, '0'), 'hrs'),
+              _timeSep(),
+              _timeUnit(minutes.toString().padLeft(2, '0'), 'min'),
+              _timeSep(),
+              _timeUnit(seconds.toString().padLeft(2, '0'), 'sec'),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _timeUnit(String value, String label) {
+    return Column(
+      children: [
+        Text(value,
+            style: const TextStyle(
+                fontSize: 38,
+                fontWeight: FontWeight.w800,
+                color: AppStyle.ink,
+                letterSpacing: -1,
+                fontFeatures: [FontFeature.tabularFigures()])),
+        const SizedBox(height: 2),
+        Text(label,
+            style: const TextStyle(
+                fontSize: 11,
+                color: AppStyle.textDim,
+                fontWeight: FontWeight.w600)),
+      ],
+    );
+  }
+
+  Widget _timeSep() {
+    return const Padding(
+      padding: EdgeInsets.symmetric(horizontal: 8),
+      child: Text(':',
+          style: TextStyle(
+              fontSize: 30,
+              fontWeight: FontWeight.w700,
+              color: AppStyle.textFaint)),
+    );
+  }
+
+  Widget _buildProgressCard() {
+    final saved = QuitService.getMoneySaved();
+    final units = QuitService.getUnitsAvoided();
+    final cravings = QuitService.getCravingsResisted();
+    return Container(
+      padding: const EdgeInsets.all(20),
+      decoration: AppStyle.card(),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          const Text('Overall progress',
+              style: TextStyle(
+                  fontSize: 16,
+                  fontWeight: FontWeight.w700,
+                  color: AppStyle.ink)),
+          const SizedBox(height: 16),
+          Row(
+            children: [
+              Expanded(
+                  child: _progressStat(Icons.savings_outlined,
+                      QuitService.formatMoney(saved), 'saved')),
+              Expanded(
+                  child: _progressStat(Icons.block_outlined,
+                      '$units', 'units avoided')),
+              Expanded(
+                  child: _progressStat(Icons.shield_outlined,
+                      '$cravings', 'cravings\nresisted')),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _progressStat(IconData icon, String value, String label) {
+    return Column(
+      children: [
+        Container(
+          width: 46,
+          height: 46,
+          decoration: BoxDecoration(
+            color: AppStyle.primarySoft,
+            borderRadius: BorderRadius.circular(14),
+          ),
+          child: Icon(icon, color: AppStyle.primary, size: 24),
+        ),
+        const SizedBox(height: 8),
+        Text(value,
+            style: const TextStyle(
+                fontSize: 18,
+                fontWeight: FontWeight.w800,
+                color: AppStyle.ink)),
+        const SizedBox(height: 2),
+        Text(label,
+            textAlign: TextAlign.center,
+            style:
+                const TextStyle(fontSize: 12, color: AppStyle.textDim)),
+      ],
+    );
+  }
+
+  Widget _buildAchievements() {
+    final milestones = QuitService.getMilestones();
+    return SizedBox(
+      height: 148,
+      child: ListView.separated(
+        scrollDirection: Axis.horizontal,
+        itemCount: milestones.length,
+        separatorBuilder: (_, __) => const SizedBox(width: 12),
+        itemBuilder: (context, i) {
+          final m = milestones[i];
+          final achieved = m['achieved'] as bool;
+          final next = !achieved &&
+              (i == 0 || (milestones[i - 1]['achieved'] as bool));
+          return Container(
+            width: 132,
+            padding: const EdgeInsets.all(14),
+            decoration: BoxDecoration(
+              color: achieved ? AppStyle.primarySoft : Colors.white,
+              borderRadius: BorderRadius.circular(18),
+              border: Border.all(
+                color: next ? AppStyle.primary : AppStyle.line,
+                width: next ? 1.5 : 1,
+              ),
+            ),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Row(
+                  children: [
+                    if (next)
+                      Container(
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 7, vertical: 3),
+                        decoration: BoxDecoration(
+                          color: AppStyle.primary,
+                          borderRadius: BorderRadius.circular(6),
+                        ),
+                        child: const Text('NEXT',
+                            style: TextStyle(
+                                fontSize: 9,
+                                fontWeight: FontWeight.w800,
+                                color: Colors.white)),
+                      ),
+                    const Spacer(),
+                    Icon(
+                      achieved
+                          ? Icons.check_circle
+                          : Icons.lock_outline,
+                      size: 18,
+                      color: achieved
+                          ? AppStyle.primary
+                          : AppStyle.textFaint,
+                    ),
+                  ],
+                ),
+                const Spacer(),
+                Icon(_milestoneIcon(i),
+                    size: 26,
+                    color: achieved
+                        ? AppStyle.primary
+                        : AppStyle.textFaint),
+                const SizedBox(height: 8),
+                Text(m['title'] as String,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: const TextStyle(
+                        fontSize: 13,
+                        fontWeight: FontWeight.w700,
+                        color: AppStyle.ink)),
+                Text(m['desc'] as String,
+                    maxLines: 2,
+                    overflow: TextOverflow.ellipsis,
+                    style: const TextStyle(
+                        fontSize: 11, color: AppStyle.textDim)),
+              ],
+            ),
+          );
+        },
+      ),
+    );
+  }
+
+  IconData _milestoneIcon(int i) {
+    const icons = [
+      Icons.flag_outlined,
+      Icons.favorite_outline,
+      Icons.air_outlined,
+      Icons.wb_sunny_outlined,
+      Icons.spa_outlined,
+      Icons.bolt_outlined,
+      Icons.fitness_center_outlined,
+      Icons.bloodtype_outlined,
+      Icons.self_improvement_outlined,
+      Icons.pregnant_woman_outlined,
+      Icons.eco_outlined,
+      Icons.emoji_events_outlined,
+    ];
+    return icons[i % icons.length];
+  }
+
+  Widget _buildHealthTimeline() {
+    final milestones = QuitService.getMilestones().skip(1).toList();
+    final hours = QuitService.getQuitDuration().inHours;
+    return Container(
+      padding: const EdgeInsets.all(20),
+      decoration: AppStyle.card(),
+      child: Column(
+        children: List.generate(milestones.length, (i) {
+          final m = milestones[i];
+          final achieved = m['achieved'] as bool;
+          final isLast = i == milestones.length - 1;
+          return IntrinsicHeight(
+            child: Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Column(
+                  children: [
+                    Container(
+                      width: 34,
+                      height: 34,
+                      decoration: BoxDecoration(
+                        color: achieved
+                            ? AppStyle.primarySoft
+                            : AppStyle.bg,
+                        shape: BoxShape.circle,
+                      ),
+                      child: Icon(
+                        achieved
+                            ? Icons.check
+                            : _milestoneIcon(i + 1),
+                        size: 17,
+                        color: achieved
+                            ? AppStyle.primary
+                            : AppStyle.textFaint,
+                      ),
+                    ),
+                    if (!isLast)
+                      Expanded(
+                        child: Container(
+                          width: 2,
+                          margin:
+                              const EdgeInsets.symmetric(vertical: 4),
+                          color: AppStyle.line,
+                        ),
+                      ),
+                  ],
+                ),
+                const SizedBox(width: 14),
+                Expanded(
+                  child: Padding(
+                    padding:
+                        EdgeInsets.only(bottom: isLast ? 0 : 18),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(m['title'] as String,
+                            style: TextStyle(
+                                fontSize: 15,
+                                fontWeight: FontWeight.w700,
+                                color: achieved
+                                    ? AppStyle.ink
+                                    : AppStyle.textFaint)),
+                        const SizedBox(height: 2),
+                        Text(m['desc'] as String,
+                            style: TextStyle(
+                                fontSize: 13,
+                                color: achieved
+                                    ? AppStyle.textDim
+                                    : AppStyle.textFaint)),
+                      ],
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          );
+        }),
+      ),
+    );
+  }
+
+  Widget _buildCheckInCard() {
+    final hasCheckedIn = QuitService.hasCheckedInToday();
+    final streak = QuitService.getCheckInStreak();
+    return GestureDetector(
+      onTap: hasCheckedIn
+          ? null
+          : () => Navigator.push(context,
+                      MaterialPageRoute(
+                          builder: (_) => const CheckInScreen()))
+                  .then((_) => setState(() {})),
+      child: Container(
+        padding: const EdgeInsets.all(18),
+        decoration: AppStyle.card(),
+        child: Row(
+          children: [
+            Container(
+              width: 48,
+              height: 48,
+              decoration: BoxDecoration(
+                color: AppStyle.primarySoft,
+                borderRadius: BorderRadius.circular(14),
+              ),
+              child: Icon(
+                hasCheckedIn
+                    ? Icons.check_circle
+                    : Icons.calendar_today_outlined,
+                color: AppStyle.primary,
+                size: 24,
+              ),
+            ),
+            const SizedBox(width: 14),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                      hasCheckedIn
+                          ? 'Checked in today'
+                          : 'Daily check-in',
+                      style: const TextStyle(
+                          fontSize: 16,
+                          fontWeight: FontWeight.w700,
+                          color: AppStyle.ink)),
+                  Text(
+                    hasCheckedIn
+                        ? '$streak-day streak — nice work'
+                        : 'How are you feeling today?',
+                    style: const TextStyle(
+                        color: AppStyle.textDim, fontSize: 13),
+                  ),
+                ],
+              ),
+            ),
+            const Icon(Icons.chevron_right,
+                color: AppStyle.textFaint),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildPledgeCard() {
+    final pledged = QuitService.hasPledgedToday();
+    return Container(
+      padding: const EdgeInsets.all(18),
+      decoration: AppStyle.card(),
+      child: Row(
+        children: [
+          Container(
+            width: 48,
+            height: 48,
+            decoration: BoxDecoration(
+              color: AppStyle.goldSoft,
+              borderRadius: BorderRadius.circular(14),
+            ),
+            child: const Icon(Icons.handshake_outlined,
+                color: AppStyle.gold, size: 24),
+          ),
+          const SizedBox(width: 14),
+          const Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text('Daily pledge',
+                    style: TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.w700,
+                        color: AppStyle.ink)),
+                Text('Commit to staying vape-free today.',
+                    style: TextStyle(
+                        color: AppStyle.textDim, fontSize: 13)),
+              ],
+            ),
+          ),
+          GestureDetector(
+            onTap: () async {
+              if (!pledged) {
+                await QuitService.makePledge();
+                setState(() {});
+                if (mounted) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(
+                        content:
+                            Text('Pledge made. You\'ve got this.')),
+                  );
+                }
+              }
+            },
+            child: Container(
+              padding: const EdgeInsets.symmetric(
+                  horizontal: 18, vertical: 11),
+              decoration: BoxDecoration(
+                color: pledged
+                    ? AppStyle.primarySoft
+                    : AppStyle.primary,
+                borderRadius: BorderRadius.circular(20),
+              ),
+              child: Text(
+                pledged ? 'Pledged' : 'I pledge',
+                style: TextStyle(
+                  fontWeight: FontWeight.w700,
+                  fontSize: 14,
+                  color: pledged
+                      ? AppStyle.primary
+                      : Colors.white,
+                ),
+              ),
+            ),
+          ),
         ],
       ),
     );

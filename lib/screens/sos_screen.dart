@@ -18,10 +18,10 @@ class SOSScreen extends StatelessWidget {
         backgroundColor: Colors.transparent,
         elevation: 0,
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back_rounded, color: Colors.white),
+          icon: const Icon(Icons.arrow_back_rounded, color: AppStyle.ink),
           onPressed: () => Navigator.pop(context),
         ),
-        title: const Text('Craving SOS', style: TextStyle(fontWeight: FontWeight.bold, color: Colors.white)),
+        title: const Text('Craving SOS', style: TextStyle(fontWeight: FontWeight.bold, color: AppStyle.ink)),
         centerTitle: true,
       ),
       body: SingleChildScrollView(
@@ -44,46 +44,47 @@ class SOSScreen extends StatelessWidget {
               child: Row(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  const Text('🏆', style: TextStyle(fontSize: 16)),
+                  const Icon(Icons.emoji_events_outlined,
+                      size: 18, color: AppStyle.primary),
                   const SizedBox(width: 8),
                   Text('$cravingsBeaten cravings beaten',
-                      style: const TextStyle(color: AppStyle.emerald, fontWeight: FontWeight.bold, fontSize: 14)),
+                      style: const TextStyle(color: AppStyle.primary, fontWeight: FontWeight.bold, fontSize: 14)),
                 ],
               ),
             ),
             const SizedBox(height: 20),
             _buildTool(
               context,
-              icon: '🤖',
+              icon: Icons.smart_toy_outlined,
               title: 'AI Quit Coach',
               desc: 'Chat 24/7 in your language',
               onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const AICoachScreen())),
             ),
             _buildTool(
               context,
-              icon: '🌬️',
+              icon: Icons.air_outlined,
               title: 'Guided breathing',
               desc: '4-4-4-4 box breathing to settle',
               onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const CravingScreen())),
             ),
             _buildTool(
               context,
-              icon: '⏳',
+              icon: Icons.timer_outlined,
               title: 'Craving timer',
               desc: 'Ride out the 3-minute peak',
               onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const CravingScreen())),
             ),
             _buildTool(
               context,
-              icon: '🎮',
-              title: 'Pop the cravings',
+              icon: Icons.sports_esports_outlined,
+              title: 'Beat the craving game',
               desc: 'A quick tap game to ride it out',
               onTap: () => _showComingSoon(context),
               isPremium: true,
             ),
             _buildTool(
               context,
-              icon: '✋',
+              icon: Icons.spa_outlined,
               title: 'Grounding',
               desc: '5-4-3-2-1 senses reset',
               onTap: () => _showComingSoon(context),
@@ -91,14 +92,14 @@ class SOSScreen extends StatelessWidget {
             ),
             _buildTool(
               context,
-              icon: '❤️',
+              icon: Icons.favorite_outline,
               title: 'Your reasons',
               desc: 'Why you started this',
               onTap: () => _showReasons(context),
             ),
             _buildTool(
               context,
-              icon: '💵',
+              icon: Icons.savings_outlined,
               title: 'Money on the line',
               desc: 'What a relapse costs you',
               onTap: () => _showMoneyCost(context),
@@ -119,7 +120,7 @@ class SOSScreen extends StatelessWidget {
   }
 
   Widget _buildTool(BuildContext context,
-      {required String icon, required String title, required String desc, required VoidCallback onTap, bool isPremium = false}) {
+      {required IconData icon, required String title, required String desc, required VoidCallback onTap, bool isPremium = false}) {
     final locked = isPremium && !QuitService.isPremium();
     return GestureDetector(
       onTap: onTap,
@@ -133,10 +134,10 @@ class SOSScreen extends StatelessWidget {
               width: 52,
               height: 52,
               decoration: BoxDecoration(
-                color: AppStyle.emerald.withOpacity(0.1),
+                color: AppStyle.primarySoft,
                 borderRadius: BorderRadius.circular(14),
               ),
-              child: Center(child: Text(icon, style: const TextStyle(fontSize: 26))),
+              child: Icon(icon, color: AppStyle.primary, size: 26),
             ),
             const SizedBox(width: 16),
             Expanded(
@@ -146,7 +147,7 @@ class SOSScreen extends StatelessWidget {
                   Row(
                     children: [
                       Text(title,
-                          style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Colors.white)),
+                          style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: AppStyle.ink)),
                       if (locked) ...[
                         const SizedBox(width: 8),
                         Container(
@@ -192,12 +193,23 @@ class SOSScreen extends StatelessWidget {
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const Text('❤️ Your Reasons', style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold, color: Colors.white)),
+            const Row(
+              children: [
+                Icon(Icons.favorite_outline,
+                    color: AppStyle.red, size: 22),
+                SizedBox(width: 10),
+                Text('Your Reasons',
+                    style: TextStyle(
+                        fontSize: 22,
+                        fontWeight: FontWeight.bold,
+                        color: AppStyle.ink)),
+              ],
+            ),
             const SizedBox(height: 16),
-            _reason('🫁', 'Breathe freely again'),
-            _reason('💰', 'Save thousands of dollars'),
-            _reason('👨‍👩‍👧', 'Be there for your family'),
-            _reason('💪', 'Take control of your life'),
+            _reason(Icons.air_outlined, 'Breathe freely again'),
+            _reason(Icons.savings_outlined, 'Save thousands every year'),
+            _reason(Icons.family_restroom_outlined, 'Be there for your family'),
+            _reason(Icons.bolt_outlined, 'Take control of your life'),
             const SizedBox(height: 16),
           ],
         ),
@@ -205,14 +217,25 @@ class SOSScreen extends StatelessWidget {
     );
   }
 
-  Widget _reason(String emoji, String text) {
+  Widget _reason(IconData icon, String text) {
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 8),
       child: Row(
         children: [
-          Text(emoji, style: const TextStyle(fontSize: 24)),
+          Container(
+            width: 40,
+            height: 40,
+            decoration: BoxDecoration(
+              color: AppStyle.primarySoft,
+              borderRadius: BorderRadius.circular(12),
+            ),
+            child: Icon(icon, color: AppStyle.primary, size: 20),
+          ),
           const SizedBox(width: 14),
-          Text(text, style: const TextStyle(fontSize: 16, color: Colors.white)),
+          Expanded(
+            child: Text(text,
+                style: const TextStyle(fontSize: 16, color: AppStyle.ink)),
+          ),
         ],
       ),
     );
@@ -229,15 +252,25 @@ class SOSScreen extends StatelessWidget {
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            const Text('💵', style: TextStyle(fontSize: 48)),
+            Container(
+              width: 64,
+              height: 64,
+              decoration: BoxDecoration(
+                color: AppStyle.redSoft,
+                borderRadius: BorderRadius.circular(18),
+              ),
+              child: const Icon(Icons.savings_outlined,
+                  color: AppStyle.red, size: 32),
+            ),
             const SizedBox(height: 12),
             const Text('One relapse costs you',
-                style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.white)),
+                style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: AppStyle.ink)),
             const SizedBox(height: 8),
-            Text('\$${costPerDay.toStringAsFixed(2)} per day',
+            Text('${QuitService.getCurrency()}${costPerDay.toStringAsFixed(2)} per day',
                 style: const TextStyle(fontSize: 32, fontWeight: FontWeight.w800, color: AppStyle.red)),
             const SizedBox(height: 8),
-            Text('That\'s \$${(costPerDay * 365).toStringAsFixed(0)} per year!',
+            Text(
+                'That\'s ${QuitService.getCurrency()}${(costPerDay * 365).toStringAsFixed(0)} per year!',
                 style: const TextStyle(color: AppStyle.textDim, fontSize: 14)),
             const SizedBox(height: 20),
             SizedBox(
@@ -245,12 +278,9 @@ class SOSScreen extends StatelessWidget {
               height: 54,
               child: ElevatedButton(
                 onPressed: () => Navigator.pop(context),
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: AppStyle.emerald,
-                  foregroundColor: Colors.black,
-                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-                ),
-                child: const Text('Stay Strong! 💪', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
+                style: AppStyle.primaryButton(),
+                child: const Text('Stay strong',
+                    style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
               ),
             ),
           ],

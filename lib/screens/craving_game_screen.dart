@@ -166,10 +166,10 @@ class _CravingGameScreenState extends State<CravingGameScreen> with TickerProvid
         backgroundColor: Colors.transparent,
         elevation: 0,
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back_rounded, color: Colors.white),
+          icon: const Icon(Icons.arrow_back_rounded, color: AppStyle.ink),
           onPressed: () => Navigator.pop(context),
         ),
-        title: const Text('💥 Smash the Craving!', style: TextStyle(fontWeight: FontWeight.bold, color: Colors.white)),
+        title: const Text('💥 Smash the Craving!', style: TextStyle(fontWeight: FontWeight.bold, color: AppStyle.ink)),
         centerTitle: true,
       ),
       body: !_isPlaying && !_gameOver ? _buildStart() : _gameOver ? _buildGameOver() : _buildGame(),
@@ -186,7 +186,7 @@ class _CravingGameScreenState extends State<CravingGameScreen> with TickerProvid
             const Text('💥', style: TextStyle(fontSize: 80)),
             const SizedBox(height: 20),
             const Text('Smash the Craving!',
-                style: TextStyle(fontSize: 28, fontWeight: FontWeight.w800, color: Colors.white)),
+                style: TextStyle(fontSize: 28, fontWeight: FontWeight.w800, color: AppStyle.ink)),
             const SizedBox(height: 12),
             const Text(
               'Vapes pop up — smash them before they disappear!\n\n💨 Normal vape = 10 pts\n✨ Golden vape = 50 pts\n❤️ Miss 3 and game over!\n🔥 Combos multiply your score!',
@@ -285,7 +285,7 @@ class _CravingGameScreenState extends State<CravingGameScreen> with TickerProvid
       decoration: BoxDecoration(
         color: isUrgent ? AppStyle.red.withOpacity(0.15) : AppStyle.cardBg,
         borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: isUrgent ? AppStyle.red : const Color(0xFF1E2A24)),
+        border: Border.all(color: isUrgent ? AppStyle.red : AppStyle.line),
       ),
       child: Row(
         mainAxisSize: MainAxisSize.min,
@@ -296,7 +296,7 @@ class _CravingGameScreenState extends State<CravingGameScreen> with TickerProvid
               style: TextStyle(
                   fontWeight: FontWeight.bold,
                   fontSize: 15,
-                  color: isUrgent ? AppStyle.red : Colors.white)),
+                  color: isUrgent ? AppStyle.red : AppStyle.ink)),
         ],
       ),
     );
@@ -305,7 +305,7 @@ class _CravingGameScreenState extends State<CravingGameScreen> with TickerProvid
   Widget _buildCell(_Target? target) {
     String emoji = '';
     Color bgColor = AppStyle.cardBg.withOpacity(0.5);
-    Color borderColor = const Color(0xFF1E2A24).withOpacity(0.5);
+    Color borderColor = AppStyle.line.withOpacity(0.5);
 
     if (target != null) {
       if (target.type == _TargetType.golden) {
@@ -353,7 +353,7 @@ class _CravingGameScreenState extends State<CravingGameScreen> with TickerProvid
             Text(won ? '🎉' : '💔', style: const TextStyle(fontSize: 72)),
             const SizedBox(height: 16),
             Text(won ? 'Craving Crushed!' : 'Game Over!',
-                style: const TextStyle(fontSize: 28, fontWeight: FontWeight.w800, color: Colors.white)),
+                style: const TextStyle(fontSize: 28, fontWeight: FontWeight.w800, color: AppStyle.ink)),
             const SizedBox(height: 8),
             Text('Score: $_score  •  Best combo: ${_bestCombo}x',
                 style: const TextStyle(color: AppStyle.textDim, fontSize: 16)),

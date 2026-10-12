@@ -117,10 +117,10 @@ class _BreathingScreenState extends State<BreathingScreen> with TickerProviderSt
         backgroundColor: Colors.transparent,
         elevation: 0,
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back_rounded, color: Colors.white),
+          icon: const Icon(Icons.arrow_back_rounded, color: AppStyle.ink),
           onPressed: () => Navigator.pop(context),
         ),
-        title: const Text('🫁 Breathing Exercise', style: TextStyle(fontWeight: FontWeight.bold, color: Colors.white)),
+        title: const Text('🫁 Breathing Exercise', style: TextStyle(fontWeight: FontWeight.bold, color: AppStyle.ink)),
         centerTitle: true,
       ),
       body: Center(
@@ -150,7 +150,7 @@ class _BreathingScreenState extends State<BreathingScreen> with TickerProviderSt
                     child: Center(
                       child: Text(
                         _isActive ? '${_breathCount + 1}/$_totalBreaths' : '🫁',
-                        style: const TextStyle(fontSize: 32, fontWeight: FontWeight.bold, color: Colors.white),
+                        style: const TextStyle(fontSize: 32, fontWeight: FontWeight.bold, color: AppStyle.ink),
                       ),
                     ),
                   );
@@ -159,7 +159,7 @@ class _BreathingScreenState extends State<BreathingScreen> with TickerProviderSt
               const SizedBox(height: 40),
               Text(
                 _phase,
-                style: const TextStyle(fontSize: 24, fontWeight: FontWeight.bold, color: Colors.white),
+                style: const TextStyle(fontSize: 24, fontWeight: FontWeight.bold, color: AppStyle.ink),
                 textAlign: TextAlign.center,
               ),
               const SizedBox(height: 16),

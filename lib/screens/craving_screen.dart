@@ -69,10 +69,10 @@ class _CravingScreenState extends State<CravingScreen> with TickerProviderStateM
         backgroundColor: Colors.transparent,
         elevation: 0,
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back_rounded, color: Colors.white),
+          icon: const Icon(Icons.arrow_back_rounded, color: AppStyle.ink),
           onPressed: () => Navigator.pop(context),
         ),
-        title: const Text('Guided Breathing', style: TextStyle(fontWeight: FontWeight.bold, color: Colors.white)),
+        title: const Text('Guided Breathing', style: TextStyle(fontWeight: FontWeight.bold, color: AppStyle.ink)),
         centerTitle: true,
       ),
       body: _completed ? _buildCompleted() : _buildBreathing(),
@@ -93,7 +93,7 @@ class _CravingScreenState extends State<CravingScreen> with TickerProviderStateM
             const Text(
               'Ride out the craving 🌊',
               textAlign: TextAlign.center,
-              style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold, color: Colors.white),
+              style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold, color: AppStyle.ink),
             ),
             const SizedBox(height: 8),
             const Text(
@@ -150,7 +150,7 @@ class _CravingScreenState extends State<CravingScreen> with TickerProviderStateM
                 children: [
                   Text('$minutes:${seconds.toString().padLeft(2, '0')}',
                       style: const TextStyle(
-                          fontSize: 46, fontWeight: FontWeight.w800, color: Colors.white,
+                          fontSize: 46, fontWeight: FontWeight.w800, color: AppStyle.ink,
                           fontFeatures: [FontFeature.tabularFigures()])),
                   const Text('until craving passes', style: TextStyle(color: AppStyle.textDim, fontSize: 13)),
                 ],
@@ -161,7 +161,7 @@ class _CravingScreenState extends State<CravingScreen> with TickerProviderStateM
             Container(
               width: double.infinity,
               height: 8,
-              decoration: BoxDecoration(color: const Color(0xFF1E2A24), borderRadius: BorderRadius.circular(4)),
+              decoration: BoxDecoration(color: AppStyle.line, borderRadius: BorderRadius.circular(4)),
               child: FractionallySizedBox(
                 alignment: Alignment.centerLeft,
                 widthFactor: 1 - (_secondsLeft / 180),
@@ -210,7 +210,7 @@ class _CravingScreenState extends State<CravingScreen> with TickerProviderStateM
             const SizedBox(height: 28),
             const Text('Craving crushed!',
                 textAlign: TextAlign.center,
-                style: TextStyle(fontSize: 30, fontWeight: FontWeight.w800, color: Colors.white)),
+                style: TextStyle(fontSize: 30, fontWeight: FontWeight.w800, color: AppStyle.ink)),
             const SizedBox(height: 12),
             const Text('You just proved you\'re stronger\nthan any craving. 💪',
                 textAlign: TextAlign.center,

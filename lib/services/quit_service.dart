@@ -21,6 +21,63 @@ class QuitService {
   static const String _keyCoins = 'quit_coins';
   static const String _keyLastCoinClaim = 'last_coin_claim';
   static const String _keyTestCoinsGranted = 'test_coins_granted';
+  static const String _keyCurrency = 'currency_symbol';
+  static const String _keyMonthlySpend = 'monthly_spend';
+  static const String _keyUnitsPerDay = 'vape_units_per_day';
+  static const String _keyReasons = 'quit_reasons';
+  static const String _keyTriggers = 'craving_triggers';
+  static const String _keyAge = 'user_age';
+  static const String _keyReadArticles = 'read_articles';
+  static const String _keyReminderPrefix = 'reminder_';
+
+  // --- Onboarding extras: reasons, triggers, age, reminders ---
+  static List<String> getQuitReasons() =>
+      _prefs.getStringList(_keyReasons) ?? [];
+  static Future<void> setQuitReasons(List<String> v) =>
+      _prefs.setStringList(_keyReasons, v);
+
+  static List<String> getTriggers() =>
+      _prefs.getStringList(_keyTriggers) ?? [];
+  static Future<void> setTriggers(List<String> v) =>
+      _prefs.setStringList(_keyTriggers, v);
+
+  static int getUserAge() => _prefs.getInt(_keyAge) ?? 0;
+  static Future<void> setUserAge(int v) => _prefs.setInt(_keyAge, v);
+
+  // Reminders: each id maps to "HH:MM|1|0" (time|enabled)
+  static const List<Map<String, String>> reminderTypes = [
+    {'id': 'pledge', 'label': 'Daily pledge', 'time': '07:00'},
+    {'id': 'quote', 'label': 'Motivation quote', 'time': '10:00'},
+    {'id': 'breath', 'label': 'Breathing break', 'time': '12:00'},
+    {'id': 'checkin', 'label': 'Evening check-in', 'time': '18:30'},
+  ];
+
+  static Map<String, dynamic> getReminder(String id) {
+    final raw = _prefs.getString('$_keyReminderPrefix$id');
+    final def = reminderTypes.firstWhere((r) => r['id'] == id);
+    if (raw == null) {
+      return {'time': def['time']!, 'enabled': true};
+    }
+    final parts = raw.split('|');
+    return {
+      'time': parts.isNotEmpty ? parts[0] : def['time']!,
+      'enabled': parts.length > 1 ? parts[1] == '1' : true,
+    };
+  }
+
+  static Future<void> setReminder(String id, String time, bool enabled) =>
+      _prefs.setString('$_keyReminderPrefix$id', '$time|${enabled ? 1 : 0}');
+
+  // --- Learn articles ---
+  static List<String> getReadArticles() =>
+      _prefs.getStringList(_keyReadArticles) ?? [];
+  static Future<void> markArticleRead(String id) async {
+    final list = getReadArticles();
+    if (!list.contains(id)) {
+      list.add(id);
+      await _prefs.setStringList(_keyReadArticles, list);
+    }
+  }
 
   // Grant 5000 test coins on first run (for testing)
   static Future<void> grantTestCoinsIfNeeded() async {
@@ -88,6 +145,8 @@ class QuitService {
   }
 
   static double getDailyCost() {
+    final monthly = _prefs.getDouble(_keyMonthlySpend);
+    if (monthly != null && monthly > 0) return monthly / 30;
     final cigsPerDay = _prefs.getInt(_keyCigsPerDay) ?? 20;
     final costPerPack = _prefs.getDouble(_keyCostPerPack) ?? 8.0;
     final cigsPerPack = _prefs.getInt(_keyCigsPerPack) ?? 20;
@@ -299,19 +358,65 @@ class QuitService {
     return DateTime.now().difference(getStartDate());
   }
 
+  // --- Vape profile (new onboarding) ---
+  static Future<void> setVapeProfile({
+    required double unitsPerDay,
+    required double monthlySpend,
+    required String currency,
+    DateTime? quitDate,
+  }) async {
+    await _prefs.setDouble(_keyUnitsPerDay, unitsPerDay);
+    await _prefs.setDouble(_keyMonthlySpend, monthlySpend);
+    await _prefs.setString(_keyCurrency, currency);
+    await _prefs.setString(
+        _keyStartDate, (quitDate ?? DateTime.now()).toIso8601String());
+    await _prefs.setInt(_keyCravingsResisted, 0);
+    // Keep legacy fields in sync for older screens
+    await _prefs.setInt(_keyCigsPerDay, unitsPerDay.round());
+    await _prefs.setDouble(_keyCostPerPack, monthlySpend);
+    await _prefs.setInt(_keyCigsPerPack, 30);
+  }
+
+  static String getCurrency() => _prefs.getString(_keyCurrency) ?? '\$';
+
+  static Future<void> setCurrency(String c) => _prefs.setString(_keyCurrency, c);
+
+  static double getMonthlySpend() => _prefs.getDouble(_keyMonthlySpend) ?? 0;
+
+  static double getUnitsPerDay() =>
+      _prefs.getDouble(_keyUnitsPerDay) ??
+      (_prefs.getInt(_keyCigsPerDay) ?? 20).toDouble();
+
+  static String formatMoney(double amount) {
+    final c = getCurrency();
+    if (amount >= 1000000) return '$c${(amount / 1000000).toStringAsFixed(1)}M';
+    if (amount >= 10000) return '$c${(amount / 1000).toStringAsFixed(1)}k';
+    if (amount == amount.roundToDouble()) {
+      return '$c${amount.round().toString()}';
+    }
+    return '$c${amount.toStringAsFixed(2)}';
+  }
+
   static double getMoneySaved() {
+    final days = getQuitDuration().inHours / 24;
+    final monthly = _prefs.getDouble(_keyMonthlySpend);
+    if (monthly != null && monthly > 0) {
+      return days * (monthly / 30);
+    }
+    // legacy fallback
     final cigsPerDay = _prefs.getInt(_keyCigsPerDay) ?? 20;
     final costPerPack = _prefs.getDouble(_keyCostPerPack) ?? 8.0;
     final cigsPerPack = _prefs.getInt(_keyCigsPerPack) ?? 20;
     final costPerCig = costPerPack / cigsPerPack;
-    final days = getQuitDuration().inHours / 24;
     return days * cigsPerDay * costPerCig;
   }
 
-  static int getCigsAvoided() {
-    final cigsPerDay = _prefs.getInt(_keyCigsPerDay) ?? 20;
+  static int getCigsAvoided() => getUnitsAvoided();
+
+  static int getUnitsAvoided() {
+    final units = getUnitsPerDay();
     final days = getQuitDuration().inHours / 24;
-    return (days * cigsPerDay).round();
+    return (days * units).round();
   }
 
   static int getCravingsResisted() {

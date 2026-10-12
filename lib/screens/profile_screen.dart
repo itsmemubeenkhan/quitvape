@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:quitvape/services/quit_service.dart';
 import 'package:quitvape/screens/paywall_screen.dart';
+import 'package:quitvape/screens/rewards_screen.dart';
 import 'package:quitvape/main.dart';
 
 class ProfileScreen extends StatefulWidget {
@@ -64,7 +65,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 ),
                 const SizedBox(height: 16),
                 Text(userName.isEmpty ? 'Champion' : userName,
-                    style: const TextStyle(fontSize: 24, fontWeight: FontWeight.w800, color: Colors.white)),
+                    style: const TextStyle(fontSize: 24, fontWeight: FontWeight.w800, color: AppStyle.ink)),
                 const SizedBox(height: 4),
                 Text('$days days vape-free 🎉', style: const TextStyle(color: AppStyle.emerald, fontSize: 15)),
                 const SizedBox(height: 16),
@@ -72,9 +73,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
                     _buildMiniStat('\$${moneySaved.toStringAsFixed(0)}', 'Saved'),
-                    Container(width: 1, height: 36, color: const Color(0xFF1E2A24), margin: const EdgeInsets.symmetric(horizontal: 20)),
+                    Container(width: 1, height: 36, color: AppStyle.line, margin: const EdgeInsets.symmetric(horizontal: 20)),
                     _buildMiniStat('${QuitService.getCravingsResisted()}', 'Cravings beat'),
-                    Container(width: 1, height: 36, color: const Color(0xFF1E2A24), margin: const EdgeInsets.symmetric(horizontal: 20)),
+                    Container(width: 1, height: 36, color: AppStyle.line, margin: const EdgeInsets.symmetric(horizontal: 20)),
                     _buildMiniStat('${QuitService.getCheckInStreak()}', 'Day streak'),
                   ],
                 ),
@@ -84,7 +85,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
           const SizedBox(height: 20),
 
           // Edit name
-          Text('Your name', style: const TextStyle(fontSize: 15, fontWeight: FontWeight.bold, color: Colors.white)),
+          Text('Your name', style: const TextStyle(fontSize: 15, fontWeight: FontWeight.bold, color: AppStyle.ink)),
           const SizedBox(height: 8),
           Container(
             decoration: AppStyle.card(),
@@ -96,7 +97,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 Expanded(
                   child: TextField(
                     controller: _nameController,
-                    style: const TextStyle(color: Colors.white, fontSize: 16),
+                    style: const TextStyle(color: AppStyle.ink, fontSize: 16),
                     decoration: const InputDecoration(
                       hintText: 'Enter your name',
                       hintStyle: TextStyle(color: AppStyle.textFaint),
@@ -134,7 +135,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text('Daily motivation', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 15, color: Colors.white)),
+                      Text('Daily motivation', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 15, color: AppStyle.ink)),
                       Text('Get inspired every morning 🌅', style: TextStyle(color: AppStyle.textDim, fontSize: 13)),
                     ],
                   ),
@@ -192,6 +193,50 @@ class _ProfileScreenState extends State<ProfileScreen> {
             ),
           const SizedBox(height: 16),
 
+          // Rewards & coins
+          GestureDetector(
+            onTap: () => Navigator.push(context,
+                MaterialPageRoute(builder: (_) => const RewardsScreen())),
+            child: Container(
+              padding: const EdgeInsets.all(18),
+              decoration: AppStyle.card(),
+              child: Row(
+                children: [
+                  Container(
+                    width: 48,
+                    height: 48,
+                    decoration: BoxDecoration(
+                      color: AppStyle.goldSoft,
+                      borderRadius: BorderRadius.circular(14),
+                    ),
+                    child: const Icon(Icons.emoji_events_outlined,
+                        color: AppStyle.gold, size: 24),
+                  ),
+                  const SizedBox(width: 14),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        const Text('Rewards & coins',
+                            style: TextStyle(
+                                fontWeight: FontWeight.bold,
+                                fontSize: 15,
+                                color: AppStyle.ink)),
+                        Text(
+                            '${QuitService.getCoins()} coins available',
+                            style: const TextStyle(
+                                color: AppStyle.textDim, fontSize: 13)),
+                      ],
+                    ),
+                  ),
+                  const Icon(Icons.arrow_forward_ios_rounded,
+                      color: AppStyle.textFaint, size: 18),
+                ],
+              ),
+            ),
+          ),
+          const SizedBox(height: 16),
+
           // Reset
           GestureDetector(
             onTap: () => _showResetDialog(),
@@ -220,7 +265,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
   Widget _buildMiniStat(String value, String label) {
     return Column(
       children: [
-        Text(value, style: const TextStyle(fontSize: 20, fontWeight: FontWeight.w800, color: Colors.white)),
+        Text(value, style: const TextStyle(fontSize: 20, fontWeight: FontWeight.w800, color: AppStyle.ink)),
         Text(label, style: const TextStyle(fontSize: 11, color: AppStyle.textDim)),
       ],
     );
@@ -241,7 +286,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
       context: context,
       builder: (_) => AlertDialog(
         backgroundColor: AppStyle.cardBg,
-        title: const Text('Reset journey?', style: TextStyle(color: Colors.white)),
+        title: const Text('Reset journey?', style: TextStyle(color: AppStyle.ink)),
         content: const Text('This will erase all your progress. Are you sure?',
             style: TextStyle(color: AppStyle.textDim)),
         actions: [

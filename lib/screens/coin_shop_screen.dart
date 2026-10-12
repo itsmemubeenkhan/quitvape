@@ -29,10 +29,10 @@ class _CoinShopScreenState extends State<CoinShopScreen> {
         backgroundColor: Colors.transparent,
         elevation: 0,
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back_rounded, color: Colors.white),
+          icon: const Icon(Icons.arrow_back_rounded, color: AppStyle.ink),
           onPressed: () => Navigator.pop(context),
         ),
-        title: const Text('Coin Shop 🛍️', style: TextStyle(fontWeight: FontWeight.bold, color: Colors.white)),
+        title: const Text('Coin Shop 🛍️', style: TextStyle(fontWeight: FontWeight.bold, color: AppStyle.ink)),
         centerTitle: true,
       ),
       body: SingleChildScrollView(
@@ -55,7 +55,7 @@ class _CoinShopScreenState extends State<CoinShopScreen> {
                   const Text('🪙', style: TextStyle(fontSize: 48)),
                   const SizedBox(height: 8),
                   Text('$coins',
-                      style: const TextStyle(fontSize: 40, fontWeight: FontWeight.w800, color: Colors.white)),
+                      style: const TextStyle(fontSize: 40, fontWeight: FontWeight.w800, color: AppStyle.ink)),
                   const Text('Your QuitCoins balance', style: TextStyle(color: AppStyle.textDim, fontSize: 14)),
                   if (!isPremium) ...[
                     const SizedBox(height: 12),
@@ -80,7 +80,7 @@ class _CoinShopScreenState extends State<CoinShopScreen> {
             const Align(
               alignment: Alignment.centerLeft,
               child: Text('Redeem coins for premium features:',
-                  style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Colors.white)),
+                  style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: AppStyle.ink)),
             ),
             const SizedBox(height: 12),
             ...items.map((item) => _buildShopItem(item)),
@@ -106,7 +106,7 @@ class _CoinShopScreenState extends State<CoinShopScreen> {
           color: AppStyle.cardBg,
           borderRadius: BorderRadius.circular(18),
           border: Border.all(
-            color: isUnlocked ? AppStyle.emerald.withOpacity(0.4) : const Color(0xFF1E2A24),
+            color: isUnlocked ? AppStyle.emerald.withOpacity(0.4) : AppStyle.line,
           ),
         ),
       child: Row(
@@ -126,7 +126,7 @@ class _CoinShopScreenState extends State<CoinShopScreen> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(item['name'] as String,
-                    style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16, color: Colors.white)),
+                    style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16, color: AppStyle.ink)),
                 Text(item['desc'] as String, style: const TextStyle(color: AppStyle.textDim, fontSize: 13)),
                 const SizedBox(height: 4),
                 Text(item['teaser'] as String,
@@ -162,7 +162,7 @@ class _CoinShopScreenState extends State<CoinShopScreen> {
                   padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
                   decoration: BoxDecoration(
                     gradient: canAfford ? AppStyle.gradientGold : null,
-                    color: canAfford ? null : const Color(0xFF1E2A24),
+                    color: canAfford ? null : AppStyle.line,
                     borderRadius: BorderRadius.circular(24),
                   ),
                   child: Text('🪙 ${item['cost']}',

@@ -37,10 +37,10 @@ class _CheckInScreenState extends State<CheckInScreen> {
         backgroundColor: Colors.transparent,
         elevation: 0,
         leading: IconButton(
-          icon: const Icon(Icons.close_rounded, color: Colors.white),
+          icon: const Icon(Icons.close_rounded, color: AppStyle.ink),
           onPressed: () => Navigator.pop(context),
         ),
-        title: const Text('Check-in', style: TextStyle(fontWeight: FontWeight.bold, color: Colors.white)),
+        title: const Text('Check-in', style: TextStyle(fontWeight: FontWeight.bold, color: AppStyle.ink)),
         centerTitle: true,
       ),
       body: SingleChildScrollView(
@@ -49,7 +49,7 @@ class _CheckInScreenState extends State<CheckInScreen> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             const Text("How's your mood?",
-                style: TextStyle(fontSize: 17, fontWeight: FontWeight.bold, color: Colors.white)),
+                style: TextStyle(fontSize: 17, fontWeight: FontWeight.bold, color: AppStyle.ink)),
             const SizedBox(height: 12),
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -65,7 +65,7 @@ class _CheckInScreenState extends State<CheckInScreen> {
                       color: selected ? AppStyle.emerald.withOpacity(0.15) : AppStyle.cardBg,
                       borderRadius: BorderRadius.circular(16),
                       border: Border.all(
-                          color: selected ? AppStyle.emerald : const Color(0xFF1E2A24),
+                          color: selected ? AppStyle.emerald : AppStyle.line,
                           width: selected ? 2 : 1),
                     ),
                     child: Center(child: Text(_moods[i], style: const TextStyle(fontSize: 30))),
@@ -75,7 +75,7 @@ class _CheckInScreenState extends State<CheckInScreen> {
             ),
             const SizedBox(height: 24),
             const Text('How strong are cravings?',
-                style: TextStyle(fontSize: 17, fontWeight: FontWeight.bold, color: Colors.white)),
+                style: TextStyle(fontSize: 17, fontWeight: FontWeight.bold, color: AppStyle.ink)),
             const SizedBox(height: 12),
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -93,7 +93,7 @@ class _CheckInScreenState extends State<CheckInScreen> {
                           color: selected ? AppStyle.emerald.withOpacity(0.15) : AppStyle.cardBg,
                           borderRadius: BorderRadius.circular(16),
                           border: Border.all(
-                              color: selected ? AppStyle.emerald : const Color(0xFF1E2A24),
+                              color: selected ? AppStyle.emerald : AppStyle.line,
                               width: selected ? 2 : 1),
                         ),
                         child: Center(child: Text(_strengthEmojis[i], style: const TextStyle(fontSize: 28))),
@@ -111,7 +111,7 @@ class _CheckInScreenState extends State<CheckInScreen> {
             ),
             const SizedBox(height: 24),
             const Text('What triggered it? (optional)',
-                style: TextStyle(fontSize: 17, fontWeight: FontWeight.bold, color: Colors.white)),
+                style: TextStyle(fontSize: 17, fontWeight: FontWeight.bold, color: AppStyle.ink)),
             const SizedBox(height: 12),
             Wrap(
               spacing: 10,
@@ -133,7 +133,7 @@ class _CheckInScreenState extends State<CheckInScreen> {
                       color: selected ? AppStyle.emerald.withOpacity(0.15) : AppStyle.cardBg,
                       borderRadius: BorderRadius.circular(24),
                       border: Border.all(
-                          color: selected ? AppStyle.emerald : const Color(0xFF1E2A24),
+                          color: selected ? AppStyle.emerald : AppStyle.line,
                           width: selected ? 1.5 : 1),
                     ),
                     child: Row(
@@ -143,8 +143,12 @@ class _CheckInScreenState extends State<CheckInScreen> {
                         const SizedBox(width: 8),
                         Text(t['label']!,
                             style: TextStyle(
-                                color: selected ? Colors.white : AppStyle.textDim,
-                                fontWeight: selected ? FontWeight.bold : FontWeight.normal,
+                                color: selected
+                                    ? AppStyle.primaryDark
+                                    : AppStyle.textDim,
+                                fontWeight: selected
+                                    ? FontWeight.bold
+                                    : FontWeight.normal,
                                 fontSize: 14)),
                       ],
                     ),

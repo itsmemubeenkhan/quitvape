@@ -271,13 +271,13 @@ Use their name occasionally. If weight/height is known, you can give personalize
           backgroundColor: Colors.transparent,
           elevation: 0,
           leading: IconButton(
-            icon: const Icon(Icons.arrow_back_rounded, color: Colors.white),
+            icon: const Icon(Icons.arrow_back_rounded, color: AppStyle.ink),
             onPressed: () => Navigator.pop(context),
           ),
           title: Row(
             mainAxisSize: MainAxisSize.min,
             children: [
-              const Text('👨‍⚕️ AI Quit Coach', style: TextStyle(fontWeight: FontWeight.bold, color: Colors.white)),
+              const Text('👨‍⚕️ AI Quit Coach', style: TextStyle(fontWeight: FontWeight.bold, color: AppStyle.ink)),
               const SizedBox(width: 8),
               Container(
                 padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
@@ -315,7 +315,7 @@ Use their name occasionally. If weight/height is known, you can give personalize
                 ),
                 const SizedBox(height: 24),
                 const Text('Meet Your AI Quit Coach',
-                    style: TextStyle(fontSize: 26, fontWeight: FontWeight.w800, color: Colors.white),
+                    style: TextStyle(fontSize: 26, fontWeight: FontWeight.w800, color: AppStyle.ink),
                     textAlign: TextAlign.center),
                 const SizedBox(height: 12),
                 const Text('A personal coach that talks to you 24/7 in YOUR language. Share feelings, beat cravings, stay motivated.',
@@ -356,10 +356,10 @@ Use their name occasionally. If weight/height is known, you can give personalize
     return Scaffold(
       backgroundColor: AppStyle.bg,
       appBar: AppBar(
-        backgroundColor: const Color(0xFF0D1310),
+        backgroundColor: Colors.white,
         elevation: 0,
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back_rounded, color: Colors.white),
+          icon: const Icon(Icons.arrow_back_rounded, color: AppStyle.ink),
           onPressed: () => Navigator.pop(context),
         ),
         title: Row(
@@ -377,7 +377,7 @@ Use their name occasionally. If weight/height is known, you can give personalize
             Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                const Text('AI Quit Coach', style: TextStyle(fontWeight: FontWeight.bold, color: Colors.white, fontSize: 16)),
+                const Text('AI Quit Coach', style: TextStyle(fontWeight: FontWeight.bold, color: AppStyle.ink, fontSize: 16)),
                 Row(
                   children: [
                     Icon(Icons.circle, color: isApiConfigured ? AppStyle.emerald : AppStyle.red, size: 8),
@@ -430,11 +430,11 @@ Use their name occasionally. If weight/height is known, you can give personalize
             bottomLeft: Radius.circular(isUser ? 20 : 4),
             bottomRight: Radius.circular(isUser ? 4 : 20),
           ),
-          border: isUser ? null : Border.all(color: const Color(0xFF1E2A24)),
+          border: isUser ? null : Border.all(color: AppStyle.line),
         ),
         child: Text(text,
             style: TextStyle(
-                color: isUser ? Colors.black : Colors.white, fontSize: 15, height: 1.45)),
+                color: isUser ? Colors.black : AppStyle.ink, fontSize: 15, height: 1.45)),
       ),
     );
   }
@@ -452,7 +452,7 @@ Use their name occasionally. If weight/height is known, you can give personalize
             topRight: Radius.circular(20),
             bottomRight: Radius.circular(20),
           ),
-          border: Border.all(color: const Color(0xFF1E2A24)),
+          border: Border.all(color: AppStyle.line),
         ),
         child: const Row(
           mainAxisSize: MainAxisSize.min,
@@ -473,8 +473,8 @@ Use their name occasionally. If weight/height is known, you can give personalize
     return Container(
       padding: const EdgeInsets.fromLTRB(16, 12, 16, 24),
       decoration: const BoxDecoration(
-        color: Color(0xFF0D1310),
-        border: Border(top: BorderSide(color: Color(0xFF1E2A24))),
+        color: Colors.white,
+        border: Border(top: BorderSide(color: AppStyle.line)),
       ),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.center,
@@ -485,11 +485,11 @@ Use their name occasionally. If weight/height is known, you can give personalize
               decoration: BoxDecoration(
                 color: AppStyle.cardBg,
                 borderRadius: BorderRadius.circular(28),
-                border: Border.all(color: const Color(0xFF1E2A24)),
+                border: Border.all(color: AppStyle.line),
               ),
               child: TextField(
                 controller: _messageController,
-                style: const TextStyle(color: Colors.white, fontSize: 15),
+                style: const TextStyle(color: AppStyle.ink, fontSize: 15),
                 decoration: const InputDecoration(
                   hintText: 'Apne dil ki baat kaho... 💬',
                   hintStyle: TextStyle(color: AppStyle.textFaint),

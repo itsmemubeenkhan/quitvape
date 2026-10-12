@@ -71,7 +71,7 @@ class _ProfileSetupScreenState extends State<ProfileSetupScreen> {
               const SizedBox(height: 24),
               const Text(
                 'Let\'s get to\nknow you! 👋',
-                style: TextStyle(fontSize: 32, fontWeight: FontWeight.w800, color: Colors.white, height: 1.2),
+                style: TextStyle(fontSize: 32, fontWeight: FontWeight.w800, color: AppStyle.ink, height: 1.2),
               ),
               const SizedBox(height: 8),
               const Text(
@@ -132,18 +132,18 @@ class _ProfileSetupScreenState extends State<ProfileSetupScreen> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(label, style: const TextStyle(color: Colors.white, fontWeight: FontWeight.w600, fontSize: 14)),
+        Text(label, style: const TextStyle(color: AppStyle.ink, fontWeight: FontWeight.w600, fontSize: 14)),
         const SizedBox(height: 8),
         Container(
           decoration: BoxDecoration(
             color: AppStyle.cardBg,
             borderRadius: BorderRadius.circular(16),
-            border: Border.all(color: const Color(0xFF1E2A24)),
+            border: Border.all(color: AppStyle.line),
           ),
           child: TextField(
             controller: controller,
             keyboardType: type,
-            style: const TextStyle(color: Colors.white, fontSize: 16),
+            style: const TextStyle(color: AppStyle.ink, fontSize: 16),
             decoration: InputDecoration(
               hintText: hint,
               hintStyle: const TextStyle(color: AppStyle.textFaint, fontSize: 15),

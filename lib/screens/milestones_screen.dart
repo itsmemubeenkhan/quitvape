@@ -18,10 +18,10 @@ class MilestonesScreen extends StatelessWidget {
         backgroundColor: Colors.transparent,
         elevation: 0,
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back_rounded, color: Colors.white),
+          icon: const Icon(Icons.arrow_back_rounded, color: AppStyle.ink),
           onPressed: () => Navigator.pop(context),
         ),
-        title: const Text('Health Milestones', style: TextStyle(fontWeight: FontWeight.bold, color: Colors.white)),
+        title: const Text('Health Milestones', style: TextStyle(fontWeight: FontWeight.bold, color: AppStyle.ink)),
         centerTitle: true,
       ),
       body: SingleChildScrollView(
@@ -46,13 +46,13 @@ class MilestonesScreen extends StatelessWidget {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text('$achievedCount/${milestones.length} Milestones',
-                            style: const TextStyle(color: Colors.white, fontSize: 18, fontWeight: FontWeight.bold)),
+                            style: const TextStyle(color: AppStyle.ink, fontSize: 18, fontWeight: FontWeight.bold)),
                         const SizedBox(height: 8),
                         ClipRRect(
                           borderRadius: BorderRadius.circular(8),
                           child: LinearProgressIndicator(
                             value: achievedCount / milestones.length,
-                            backgroundColor: const Color(0xFF1E2A24),
+                            backgroundColor: AppStyle.line,
                             valueColor: const AlwaysStoppedAnimation<Color>(AppStyle.emerald),
                             minHeight: 8,
                           ),
@@ -81,7 +81,7 @@ class MilestonesScreen extends StatelessWidget {
                     color: AppStyle.cardBg,
                     borderRadius: BorderRadius.circular(18),
                     border: Border.all(
-                      color: achieved ? AppStyle.emerald.withOpacity(0.3) : const Color(0xFF1E2A24),
+                      color: achieved ? AppStyle.emerald.withOpacity(0.3) : AppStyle.line,
                     ),
                   ),
                   child: Row(
@@ -93,7 +93,7 @@ class MilestonesScreen extends StatelessWidget {
                           color: achieved
                               ? AppStyle.emerald.withOpacity(0.15)
                               : isLocked
-                                  ? const Color(0xFF1A221E)
+                                  ? AppStyle.cardBg2
                                   : AppStyle.gold.withOpacity(0.1),
                           borderRadius: BorderRadius.circular(16),
                         ),
@@ -112,7 +112,7 @@ class MilestonesScreen extends StatelessWidget {
                                 Expanded(
                                   child: Text(m['title'] as String,
                                       style: const TextStyle(
-                                          fontWeight: FontWeight.bold, fontSize: 16, color: Colors.white)),
+                                          fontWeight: FontWeight.bold, fontSize: 16, color: AppStyle.ink)),
                                 ),
                                 if (isLocked)
                                   Container(
