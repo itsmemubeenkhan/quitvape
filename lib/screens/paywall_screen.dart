@@ -35,41 +35,67 @@ class _PaywallScreenState extends State<PaywallScreen> {
   }
 
   Future<void> _initStore() async {
-    _available = await _iap.isAvailable();
-    if (_available) {
-      try {
-        final response = await _iap.queryProductDetails(_productIds);
-        final sorted = response.productDetails.toList()
-          ..sort((a, b) => _sortOrder(a.id).compareTo(_sortOrder(b.id)));
-        if (mounted) {
-          setState(() {
-            _products = sorted;
-            _loading = false;
-            _error = response.error != null
-                ? 'Could not load plans. Check your connection and try again.'
-                : (sorted.isEmpty ? 'empty' : null);
-            if (_products.isNotEmpty) {
-              // default to yearly (index 2) if present
-              _selectedIndex =
-                  _products.indexWhere((p) => p.id.contains('yearly'));
-              if (_selectedIndex < 0) _selectedIndex = 0;
-            }
-          });
-        }
-        _iap.purchaseStream.listen(_onPurchaseUpdate);
-      } catch (e) {
-        if (mounted) {
-          setState(() {
-            _loading = false;
-            _error = 'Could not load plans. Check your connection and try again.';
-          });
-        }
+    // Listen for purchase updates from the start (independent of query).
+    _iap.purchaseStream.listen(_onPurchaseUpdate);
+    try {
+      // Billing client connection can hang forever (e.g. Play Store IPC
+      // issues) — never leave the user on an infinite spinner.
+      _available = await _iap.isAvailable().timeout(
+        const Duration(seconds: 12),
+        onTimeout: () =>
+            throw TimeoutException('Google Play connection timed out'),
+      );
+      if (!_available) {
+        throw StateError('store-unavailable');
       }
-    } else {
+      final response =
+          await _iap.queryProductDetails(_productIds).timeout(
+        const Duration(seconds: 15),
+        onTimeout: () => throw TimeoutException('Plan query timed out'),
+      );
+      // Debug info for diagnosing missing products.
+      if (response.notFoundIDs.isNotEmpty) {
+        debugPrint(
+            '[QuitVape billing] notFoundIDs: ${response.notFoundIDs}');
+      }
+      if (response.error != null) {
+        debugPrint(
+            '[QuitVape billing] query error: ${response.error!.code} ${response.error!.message}');
+      }
+      final sorted = response.productDetails.toList()
+        ..sort((a, b) => _sortOrder(a.id).compareTo(_sortOrder(b.id)));
+      if (mounted) {
+        setState(() {
+          _products = sorted;
+          _loading = false;
+          _error = response.error != null
+              ? 'Could not load plans. Check your connection and try again.'
+              : (sorted.isEmpty ? 'empty' : null);
+          if (_products.isNotEmpty) {
+            // default to yearly (index 2) if present
+            _selectedIndex =
+                _products.indexWhere((p) => p.id.contains('yearly'));
+            if (_selectedIndex < 0) _selectedIndex = 0;
+          }
+        });
+      }
+    } on TimeoutException catch (e) {
+      debugPrint('[QuitVape billing] timeout: $e');
       if (mounted) {
         setState(() {
           _loading = false;
-          _error = 'Store is not available on this device.';
+          _error =
+              'Taking too long to reach Google Play. Check your connection and tap Try again.';
+        });
+      }
+    } catch (e) {
+      debugPrint('[QuitVape billing] init failed: $e');
+      if (mounted) {
+        setState(() {
+          _loading = false;
+          _error = e.toString().contains('store-unavailable')
+              ? 'Google Play Store is not available on this device.'
+              : 'Could not load plans. Check your connection and try again.';
         });
       }
     }
