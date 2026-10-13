@@ -38,21 +38,24 @@ class _PaywallScreenState extends State<PaywallScreen> {
   Future<void> _initStore() async {
     // Listen for purchase updates from the start (independent of query).
     _iap.purchaseStream.listen(_onPurchaseUpdate);
+    String step = 'init';
     try {
       // Billing client connection can hang forever (e.g. Play Store IPC
       // issues) — never leave the user on an infinite spinner.
+      step = 'isAvailable';
       _available = await _iap.isAvailable().timeout(
         const Duration(seconds: 12),
         onTimeout: () =>
-            throw TimeoutException('Google Play connection timed out'),
+            throw TimeoutException('STEP=isAvailable TIMEOUT'),
       );
       if (!_available) {
         throw StateError('store-unavailable');
       }
+      step = 'queryProductDetails';
       final response =
           await _iap.queryProductDetails(_productIds).timeout(
         const Duration(seconds: 15),
-        onTimeout: () => throw TimeoutException('Plan query timed out'),
+        onTimeout: () => throw TimeoutException('STEP=queryProductDetails TIMEOUT'),
       );
       // Debug info for diagnosing missing products.
       final diag =
@@ -80,12 +83,14 @@ class _PaywallScreenState extends State<PaywallScreen> {
         });
       }
     } on TimeoutException catch (e) {
-      debugPrint('[QuitVape billing] timeout: $e');
+      debugPrint('[QuitVape billing] timeout at $step: $e');
       if (mounted) {
         setState(() {
           _loading = false;
-          _error =
-              'Taking too long to reach Google Play. Check your connection and tap Try again.';
+          _diagInfo = 'FAILED_AT=$step';
+          _error = step == 'isAvailable'
+              ? 'Could not connect to Google Play billing. [code: CONN_TIMEOUT]'
+              : 'Connected to Play but plans query timed out. [code: QUERY_TIMEOUT]';
         });
       }
     } catch (e) {
