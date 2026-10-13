@@ -32,9 +32,10 @@ jobs:
           if [ -n "${{ secrets.QUITVAPE_KEYSTORE_B64 }}" ]; then
             echo "${{ secrets.QUITVAPE_KEYSTORE_B64 }}" | base64 -d > android/keystore/quitvape.jks
             echo "Using permanent keystore from QUITVAPE_KEYSTORE_B64 secret"
-          elif [ ! -f android/keystore/quitvape.jks ]; then
-            keytool -genkey -v -keystore android/keystore/quitvape.jks -alias quitvape -keyalg RSA -keysize 2048 -validity 10000 -storepass quitvape2026 -keypass quitvape2026 -dname "CN=TheBrandMaker, OU=Apps, O=TheBrandMaker, L=New York, ST=NY, C=US"
-            echo "Generated ephemeral keystore (set QUITVAPE_KEYSTORE_B64 secret for permanent signing)"
+          else
+            echo "ERROR: QUITVAPE_KEYSTORE_B64 secret is not set! Build would use wrong signing key."
+            echo "Add the secret in GitHub repo Settings > Secrets > Actions"
+            exit 1
           fi
       - name: Build APK
         run: flutter build apk --release --dart-define=NVIDIA_API_KEY=${{ secrets.NVIDIA_API_KEY }}
