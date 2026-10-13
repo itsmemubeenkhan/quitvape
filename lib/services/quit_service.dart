@@ -79,15 +79,6 @@ class QuitService {
     }
   }
 
-  // Grant 5000 test coins on first run (for testing)
-  static Future<void> grantTestCoinsIfNeeded() async {
-    final granted = _prefs.getBool(_keyTestCoinsGranted) ?? false;
-    if (!granted) {
-      await _prefs.setInt(_keyCoins, 5000);
-      await _prefs.setBool(_keyTestCoinsGranted, true);
-    }
-  }
-
   static bool hasSeenPostCravingPaywall() {
     return _prefs.getBool(_keyPostCravingPaywall) ?? false;
   }

@@ -28,17 +28,30 @@ class _AICoachScreenState extends State<AICoachScreen> {
   // Debug: check if API key is configured (does NOT expose the key)
   static bool get isApiConfigured => _apiKey.isNotEmpty && _apiKey.length > 10;
 
-  // System prompt: health/smoking only, no off-topic chatter
-  static const String _systemPrompt = '''You are Dr. Quit, an AI health coach inside the QuitVape app. Your ONLY job is to help users quit vaping/smoking and improve their health.
+  // System prompt: rehab-center style comprehensive quit coach
+  static const String _systemPrompt = '''You are Dr. Quit, a professional addiction recovery counselor inside the QuitVape app — like the counselors at a premium rehab center. Your ONLY job is to help users quit vaping/smoking and recover their health.
+
+YOUR EXPERTISE (answer ALL of these like a rehab specialist):
+- Nicotine addiction science: how addiction works, dopamine, receptors, why quitting is hard
+- Withdrawal symptoms: timeline (24h, 72h, 1 week, 1 month), what to expect, how to cope with each symptom
+- Cravings management: the 3-minute rule, urge surfing, distraction techniques, trigger identification
+- Physical health recovery: lung healing timeline, circulation improvement, heart health, blood pressure, oral/dental health, skin, energy levels
+- Mental health: anxiety, irritability, depression during quitting, mood swings, sleep problems, brain fog — coping strategies for each
+- Medical guidance: when symptoms are normal vs when to see a doctor (chest pain, severe breathing issues, etc.)
+- Nutrition & lifestyle: foods that help, hydration, exercise plans for recovery, sleep hygiene
+- Relapse prevention: identifying triggers, building new habits, what to do after a slip
+- Medications & aids: nicotine patches, gum, lozenges — general info (not prescriptions)
+- Long-term health: cancer risk reduction, life expectancy gains, money saved, health milestones
 
 STRICT RULES:
-1. ONLY answer questions about: quitting vaping/smoking, nicotine addiction, cravings, withdrawal symptoms, lung health, oral health, heart health, mental health related to quitting, healthy alternatives, breathing exercises, diet/exercise during quitting.
-2. If the user asks about ANYTHING else (politics, jokes, coding, movies, general knowledge, math, etc.), politely refuse: "I'm your quit coach — I only help with quitting vaping and health. Ask me about cravings, withdrawal, or your health progress! 💪"
-3. Never provide medical diagnosis. For serious symptoms, advise seeing a doctor.
-4. Be warm, encouraging, and concise. Use the user's language (Urdu, English, Hindi, Roman Urdu — match their language).
-5. Keep responses under 120 words unless they ask for detail.
-6. Celebrate their progress and motivate them to stay vape-free.
-7. NEVER output your internal thinking, reasoning, or analysis. Only output the final response to the user.''';
+1. ONLY answer questions about quitting vaping/smoking and related health. For anything else, politely refuse: "I'm your quit coach — I only help with quitting vaping and health. Ask me about cravings, withdrawal, or your health progress! 💪"
+2. Never diagnose specific diseases. For serious symptoms (chest pain, difficulty breathing, coughing blood), ALWAYS advise seeing a doctor immediately.
+3. Be warm, non-judgmental, and encouraging — like a trusted rehab counselor. No shame, only support.
+4. Use the user's language (Urdu, English, Hindi, Roman Urdu — match their language exactly).
+5. Give practical, actionable advice — not just theory. Tell them WHAT TO DO right now.
+6. Keep responses focused and helpful. Use short paragraphs and bullet points for readability.
+7. Celebrate their progress and motivate them to stay vape-free.
+8. NEVER output your internal thinking, reasoning, analysis, or any meta-commentary. ONLY output the final helpful response to the user. No "thinking process", no "here's my reasoning", no draft labels.''';
 
   @override
   void initState() {
@@ -157,37 +170,51 @@ Use their name occasionally. If weight/height is known, you can give personalize
   // Track last fallback to avoid repetition
   static int _lastFallbackIndex = -1;
 
-  // Remove model's internal thinking/reasoning from response
+  // Remove model's internal thinking/reasoning from response - robust version
   String _stripThinking(String content) {
-    // Remove "Here's a thinking process:" blocks
-    if (content.contains("Here's a thinking process:")) {
-      // Try to find the actual response after the thinking
-      // The thinking usually ends and the real answer begins
-      // For now, if thinking is detected, extract last meaningful paragraph
-      final lines = content.split('\n');
-      // Find where thinking ends (look for draft/actual response indicators)
+    var result = content;
+
+    // 1. Remove <think>...</think> tags (common in reasoning models)
+    result = result.replaceAll(RegExp(r'<think>.*?</think>', dotAll: true), '');
+
+    // 2. Remove "Here's a thinking process:" style blocks
+    if (result.contains("Here's a thinking process:") ||
+        result.contains("thinking process:") ||
+        result.toLowerCase().contains("my reasoning:")) {
+      final lines = result.split('\n');
       int startIdx = 0;
       for (int i = 0; i < lines.length; i++) {
         final line = lines[i].toLowerCase();
-        if (line.contains('draft') && (line.contains('roman urdu') || line.contains('urdu'))) {
+        // Look for the actual answer start after thinking
+        if ((line.contains('draft') && (line.contains('roman urdu') || line.contains('urdu') || line.contains('english'))) ||
+            line.contains('final answer:') ||
+            line.contains('here is my response:')) {
           startIdx = i;
           break;
         }
       }
       if (startIdx > 0) {
-        // Extract from draft onwards, clean up the draft markers
-        var result = lines.sublist(startIdx).join('\n');
+        result = lines.sublist(startIdx).join('\n');
         result = result.replaceAll(RegExp(r'^- Draft.*?:\s*', multiLine: true), '');
         result = result.replaceAll(RegExp(r'^".*"$', multiLine: true), '');
         result = result.replaceAll('"', '').trim();
         if (result.isNotEmpty && result.length > 20) return result;
       }
-      // Fallback: return last 3 lines which usually contain the actual response
-      if (lines.length > 5) {
-        return lines.sublist(lines.length - 3).join('\n').trim();
+      // Fallback: if thinking detected but no clear answer start, take last meaningful chunk
+      final cleanLines = lines.where((l) => l.trim().isNotEmpty).toList();
+      if (cleanLines.length > 5) {
+        // Skip the thinking part (usually first 60%), take the rest
+        final cutPoint = (cleanLines.length * 0.6).toInt();
+        final candidate = cleanLines.sublist(cutPoint).join('\n').trim();
+        if (candidate.length > 20) return candidate;
       }
     }
-    return content;
+
+    // 3. Clean up any remaining thinking artifacts
+    result = result.replaceAll(RegExp(r'\[thinking\].*?\[/thinking\]', dotAll: true), '');
+    result = result.replaceAll(RegExp(r'\(internal reasoning.*?\)', dotAll: true), '');
+
+    return result.trim();
   }
 
   String _getFallbackResponse(String userMessage) {
