@@ -32,13 +32,23 @@ class RewardsScreen extends StatelessWidget {
     final canClaim = QuitService.canClaimDailyCoins();
     final isPremium = QuitService.isPremium();
 
-    return SingleChildScrollView(
+    return Scaffold(
+      backgroundColor: AppStyle.bg,
+      appBar: AppBar(
+        backgroundColor: AppStyle.bg,
+        elevation: 0,
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back_rounded, color: AppStyle.ink),
+          onPressed: () => Navigator.pop(context),
+        ),
+        title: const Text('Rewards',
+            style: TextStyle(fontWeight: FontWeight.bold, color: AppStyle.ink)),
+      ),
+      body: SingleChildScrollView(
       padding: const EdgeInsets.all(20),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text('Rewards', style: AppStyle.headline(size: 26)),
-          const SizedBox(height: 4),
           Text('$earnedCount of ${rewards.length} unlocked', style: AppStyle.subtext()),
           const SizedBox(height: 16),
 
@@ -246,6 +256,7 @@ class RewardsScreen extends StatelessWidget {
           ),
           const SizedBox(height: 20),
         ],
+      ),
       ),
     );
   }
